@@ -11,7 +11,7 @@ const mapContainerStyle = {
 
 const center = { lat: 34.6834, lng: -82.8374 };
 
-const Map = () => {
+function Map() {
   const { isLoaded, loadError } = useLoadScript({
     googleMapsApiKey: GOOGLE_MAPS_API_KEY,
     libraries,
