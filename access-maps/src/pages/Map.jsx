@@ -11,13 +11,8 @@ const mapContainerStyle = {
 //const center = { lat: 34.6834, lng: -82.8374 };
 const center = {lat: 34.67746801796802, lng: -82.83621206595672};
 
-const elevatorMarkers = [
-	{lat: 34.677309892334335, lng: -82.83709680406795},
-	{lat: 34.675319675177256, lng: -82.83689295618282},
-];
-
-const polygonCoords = require("../polygons.json");
-const elevatorCoords = require("../elevators.json");
+const polygonCoords = require("../coordinates/polygons.json");
+const elevatorCoords = require("../coordinates/elevators.json");
 
 const stairHazard = {
 	strokeOpacity:0.9,
@@ -29,6 +24,11 @@ const stairHazard = {
 	strokeColor: "#FFFF00",
 	fillColor: "#000000",
 };
+
+const elevatorMarker = {
+	//icon:"../images/Elevator.svg",
+	scale: 1
+}
 
 function handleMapClick (event){
 	console.log('Clicked coordinates:', event.latLng.lat(), event.latLng.lng());
@@ -52,15 +52,13 @@ function Map() {
     <div>
       <GoogleMap
         mapContainerStyle={mapContainerStyle}
-        zoom={15}
+        zoom={16}
         center={center}
         mapId={"a4620df1fed5e14e"}
 	   onClick={handleMapClick}
       >
         <Marker position={center}></Marker>
-		//read as for every mark in elevatorMarkers
-		//make a marker with its position
-		{elevatorMarkers.map(mark => <Marker key={mark.lat} position={mark}/>)}
+		{elevatorCoords.coords.map(mark => <Marker key={mark.lat} position={mark}/>)}
 
 	{polygonCoords.polygons.map((polygonCoordinates, index) => (
 		<Polygon
@@ -74,9 +72,4 @@ function Map() {
   );
 };
 
-
-//{polygonCoords.polygons.map((coordList, index) => <Polygon key={index} path={coordList} options{stairHazard}/>)}
-//<Polygon path={parseCoordinates()} options={stairHazard}/>
-//{( coordList=> <Polygon path{<>} options={stairHazard}/>)}
-//<Circle center={center} radius={6} options={stairHazard}/>
 export default Map;
