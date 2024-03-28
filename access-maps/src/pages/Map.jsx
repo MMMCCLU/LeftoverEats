@@ -8,7 +8,8 @@ const mapContainerStyle = {
   height: '100vh',
 };
 
-const center = { lat: 34.6834, lng: -82.8374 };
+//const center = { lat: 34.6834, lng: -82.8374 };
+const center = {lat: 34.67746801796802, lng: -82.83621206595672};
 
 const elevatorMarkers = [
 	{lat: 34.677309892334335, lng: -82.83709680406795},
