@@ -4,7 +4,7 @@ import { GoogleMap, useLoadScript, Marker, DirectionsRenderer  } from '@react-go
 
 import Report from "../components/Report";
 
-import { Button } from "@mui/material";
+import { Chip, Button } from "@mui/material";
 
 const GOOGLE_MAPS_API_KEY = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
 
@@ -15,11 +15,14 @@ const mapContainerStyle = {
 };
 
 function Map() {
+  const clemson = { lat: 34.6834, lng: -82.8374 };  
+  const greenville = { lat: 34.8526, lng: -82.3940};
+
   const [startPos, setStartMarkerPosition] = useState();
   const [endPos, setEndMarkerPosition] = useState();
   const [directions, setDirections] = useState();
-
-  const center = { lat: 34.6834, lng: -82.8374 };  
+  const [center, setCenter] = useState({ lat: 34.5034, lng: -82.6501 });
+  const [centerName, setCenterName] = useState();
 
   const options = useMemo(
     () => ({
@@ -79,10 +82,38 @@ function Map() {
     );
   };
 
+  const toggleCenter = () => {
+    if(centerName === "Clemson")
+    {
+      setCenterName("Greenville");
+      setCenter(greenville);
+    }
+    else
+    {
+      setCenterName("Clemson");
+      setCenter(clemson);
+    }
+  }
+
+  const clearDirections = () => {
+    if(!directions) return;
+    setStartMarkerPosition(null);
+    setEndMarkerPosition(null);
+    setDirections(null);
+  }
+
+  const handleStartDeleteMarker = (event) => {
+    setStartMarkerPosition(null);
+  }
+
+  const handleEndDeleteMarker = (event) => {
+    setEndMarkerPosition(null);
+  }
+
   return (
     <div>
       <div style={{ display: 'flex', alignItems: 'center' }}>
-          <Button
+          {startPos && endPos && <Button
               onClick={() => fetchDirections()}
               style={{
                   border: '2px solid black',
@@ -92,7 +123,31 @@ function Map() {
               }}
           >
               GO!
-          </Button>
+          </Button>}
+          {<Button
+              onClick={() => toggleCenter()}
+              style={{
+                  border: '2px solid black',
+                  padding: '10px 20px', // Increase padding to make the button bigger
+                  fontSize: '1.2rem', // Increase font size
+                  marginRight: 'auto', // Pushes the GO button to the left
+              }}
+          >
+              Toggle Center
+          </Button>}
+          {directions && <Button
+              onClick={() => clearDirections()}
+              style={{
+                  border: '2px solid black',
+                  padding: '10px 20px', // Increase padding to make the button bigger
+                  fontSize: '1.2rem', // Increase font size
+                  marginRight: 'auto', // Pushes the GO button to the left
+              }}
+          >
+              Clear Directions
+          </Button>}
+          {startPos && !directions && <Chip label="Start" variant="outlined" onDelete={handleStartDeleteMarker} />}
+          {endPos && !directions && <Chip label="End" variant="outlined" onDelete={handleEndDeleteMarker} />}
           <div style={{ marginLeft: 'auto' }}> {/* Aligns the Report button all the way to the right */}
               <Report />
           </div>
@@ -104,13 +159,13 @@ function Map() {
         options={options}
         onClick={handleMapClick}
       >
-        {startPos && <Marker position={startPos}></Marker> }
-        {endPos && <Marker position={endPos}></Marker>}
-          {directions && (
-            <DirectionsRenderer
-              directions={directions}
-          />
-          )
+        {startPos && !directions && <Marker position={startPos}></Marker> }
+        {endPos && !directions && <Marker position={endPos}></Marker>}
+        {directions && (
+          <DirectionsRenderer
+            directions={directions}
+        />
+        )
         }
       </GoogleMap>
     </div>
