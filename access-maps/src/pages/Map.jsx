@@ -1,17 +1,42 @@
 import { useMemo, useState } from 'react';
 import React from 'react';
-import { GoogleMap, useLoadScript, Marker, DirectionsRenderer  } from '@react-google-maps/api';
+import { GoogleMap, useLoadScript, Marker, DirectionsRenderer , Polygon} from '@react-google-maps/api';
 
 import Report from "../components/Report";
 
 import { Chip, Button } from "@mui/material";
 
 const GOOGLE_MAPS_API_KEY = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
-
 const libraries = ['places'];
 const mapContainerStyle = {
   width: '100vw',
   height: '80vh',
+};
+
+//const center = { lat: 34.6834, lng: -82.8374 };
+const center = {lat: 34.67746801796802, lng: -82.83621206595672};
+
+const polygonCoords = require("../coordinates/polygons.json");
+const elevatorCoords = require("../coordinates/elevators.json");
+
+const stairHazard = {
+	strokeOpacity:0.9,
+	strokeWeight:2,
+	clickable:false,
+	draggable:false,
+	editable:false,
+	visible:true,
+	strokeColor: "#FFFF00",
+	fillColor: "#000000",
+};
+
+const elevatorMarker = {
+	//icon:"../images/Elevator.svg",
+	scale: 1
+}
+
+function handleMapClick (event){
+	console.log('Clicked coordinates:', event.latLng.lat(), event.latLng.lng());
 };
 
 function Map() {
@@ -154,7 +179,7 @@ function Map() {
       </div>
       <GoogleMap
         mapContainerStyle={mapContainerStyle}
-        zoom={12}
+        zoom={16}
         center={center}
         options={options}
         onClick={handleMapClick}
@@ -167,6 +192,15 @@ function Map() {
         />
         )
         }
+		{elevatorCoords.coords.map(mark => <Marker key={mark.lat} position={mark}/>)}
+
+	{polygonCoords.polygons.map((polygonCoordinates, index) => (
+		<Polygon
+			key={index}
+			paths={polygonCoordinates}
+			options={stairHazard}
+		/>))
+	}
       </GoogleMap>
     </div>
   );
