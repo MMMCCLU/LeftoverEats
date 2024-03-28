@@ -2,6 +2,8 @@ import { useMemo, useState } from 'react';
 import React from 'react';
 import { GoogleMap, useLoadScript, Marker, DirectionsRenderer  } from '@react-google-maps/api';
 
+import Report from "../components/Report";
+
 import { Button } from "@mui/material";
 
 const GOOGLE_MAPS_API_KEY = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
@@ -79,16 +81,22 @@ function Map() {
 
   return (
     <div>
-      {<Button
-            onClick={() => fetchDirections()}
-            style={{
-                border: '2px solid black',
-                padding: '10px 20px', // Increase padding to make the button bigger
-                fontSize: '1.2rem', // Increase font size
-            }}
-            >
-                GO!
-        </Button>}
+      <div style={{ display: 'flex', alignItems: 'center' }}>
+          <Button
+              onClick={() => fetchDirections()}
+              style={{
+                  border: '2px solid black',
+                  padding: '10px 20px', // Increase padding to make the button bigger
+                  fontSize: '1.2rem', // Increase font size
+                  marginRight: 'auto', // Pushes the GO button to the left
+              }}
+          >
+              GO!
+          </Button>
+          <div style={{ marginLeft: 'auto' }}> {/* Aligns the Report button all the way to the right */}
+              <Report />
+          </div>
+      </div>
       <GoogleMap
         mapContainerStyle={mapContainerStyle}
         zoom={12}
