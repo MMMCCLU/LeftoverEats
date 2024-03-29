@@ -1,6 +1,6 @@
 import React from 'react';
 import { GoogleMap, useLoadScript, Marker, Polygon} from '@react-google-maps/api';
-import elevatorSVG from '../images/Elevator.png';
+import elevatorPNG from "../images/Elevator.png";
 
 const GOOGLE_MAPS_API_KEY = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
 const libraries = ['places'];
@@ -26,12 +26,13 @@ const stairHazard = {
 	fillColor: "#000000",
 };
 
-/*
 const elevatorMarker = {
-	icon:"../images/Elevator.svg",
-	scale: 1
-}
-*/
+      fillOpacity: 1,
+      strokeColor: '#FFFF00',
+      fillColor: "#00FF00",
+      strokeWeight: 2,
+      scale: 10
+};
 
 function handleMapClick (event){
 	console.log('Clicked coordinates:', event.latLng.lat(), event.latLng.lng());
@@ -58,18 +59,23 @@ function Map() {
         zoom={16}
         center={center}
         mapId={"a4620df1fed5e14e"}
-	   onClick={handleMapClick}
+        onClick={handleMapClick}
       >
-        <Marker position={center}></Marker>
-		{elevatorCoords.coords.map(mark => <Marker key={mark.lat} icon={elevatorSVG} position={mark}/>)}
+		{elevatorCoords.coords.map(mark =>
+			<Marker
+				key={mark.lat}
+				position={mark}
+				options={elevatorMarker}
+			/>)
+		}
 
-	{polygonCoords.polygons.map((polygonCoordinates, index) => (
-		<Polygon
-			key={index}
-			paths={polygonCoordinates}
-			options={stairHazard}
-		/>))
-	}
+		{polygonCoords.polygons.map((polygonCoordinates, index) => (
+			<Polygon
+				key={index}
+				paths={polygonCoordinates}
+				options={stairHazard}
+			/>))
+		}
       </GoogleMap>
     </div>
   );
@@ -77,6 +83,7 @@ function Map() {
 
 export default Map;
 
+
+//<Marker position={center} ></Marker>
 //{elevatorCoords.coords.map(mark => <Marker key={mark.lat} position={mark}/>)}
-//{elevatorCoords.coords.map(mark => <Marker key={mark.lat} icon={elevatorSVG} position={mark}/>)}
 
