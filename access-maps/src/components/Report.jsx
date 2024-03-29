@@ -3,19 +3,26 @@ import Button from '@mui/material/Button';
 import Drawer from '@mui/material/Drawer';
 
 // TODO: This is a report button to add a feature to the map- Please IMPLEMENT ME!
-function Report()
-{
+const Report = (props) => {
     const [open, setOpen] = useState(false);
 
     const toggleDrawer = (isOpen) => () => {
         setOpen(isOpen);
     };
 
+    const handleReportClick = (type) => {
+        // Call the onReportTypeChange function passed from Map component
+        props.onReportTypeChange(type);
+        // Close the drawer
+        setOpen(false);
+      };
+    
+
     const DrawerList = (
         <div>
-            <Button>Ramp</Button>
-            <Button>Stair</Button>
-            <Button>Elevator</Button>
+            <Button onClick={() => handleReportClick("Ramp")}>Ramp</Button>
+            <Button onClick={() => handleReportClick("Stair")}>Stair</Button>
+            <Button onClick={() => handleReportClick("Elevator")}>Elevator</Button>
             {/* ADD MORE REPORT CASES */}
         </div>
     );
