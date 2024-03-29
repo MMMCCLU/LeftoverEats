@@ -10,7 +10,7 @@ export default function App() {
       <NavBar></NavBar>
       <Routes>
           <Route index element={<Home />} />
-          <Route path="/map" element={<Map />} />
+          <Route path="/map/:mapName" element={<Map />} />
       </Routes>
     </BrowserRouter>
   );

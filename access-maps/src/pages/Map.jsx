@@ -1,20 +1,19 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import React from 'react';
 import { GoogleMap, useLoadScript, Marker, DirectionsRenderer , Polygon} from '@react-google-maps/api';
-
 import Report from "../components/Report";
-
 import { Chip, Button } from "@mui/material";
+import { useParams } from 'react-router-dom';
 
-const GOOGLE_MAPS_API_KEY = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
+const GOOGLE_MAPS_API_KEY = "AIzaSyC9rtri-qhRMWZjYmSkcIOII58z-kNOJ54";
 const libraries = ['places'];
 const mapContainerStyle = {
   width: '100vw',
   height: '80vh',
 };
 
-//const center = { lat: 34.6834, lng: -82.8374 };
-const center = {lat: 34.67746801796802, lng: -82.83621206595672};
+const clemson = { lat: 34.6834, lng: -82.8374 };  
+const greenville = { lat: 34.8526, lng: -82.3940};
 
 const polygonCoords = require("../coordinates/polygons.json");
 const elevatorCoords = require("../coordinates/elevators.json");
@@ -40,14 +39,22 @@ function handleMapClick (event){
 };
 
 function Map() {
-  const clemson = { lat: 34.6834, lng: -82.8374 };  
-  const greenville = { lat: 34.8526, lng: -82.3940};
-
+  const { mapName } = useParams();
   const [startPos, setStartMarkerPosition] = useState();
   const [endPos, setEndMarkerPosition] = useState();
   const [directions, setDirections] = useState();
   const [center, setCenter] = useState({ lat: 34.5034, lng: -82.6501 });
-  const [centerName, setCenterName] = useState();
+
+  useEffect(() => {
+    // Set Google Maps Center based on mapName
+    if (mapName === "Clemson") {
+      setCenter(clemson);
+    } else if (mapName === "Greenville") {
+      setCenter(greenville);
+    } else {
+      console.log("INVALID MAP LOCATION");
+    }
+  }, [mapName]);
 
   const options = useMemo(
     () => ({
@@ -107,19 +114,6 @@ function Map() {
     );
   };
 
-  const toggleCenter = () => {
-    if(centerName === "Clemson")
-    {
-      setCenterName("Greenville");
-      setCenter(greenville);
-    }
-    else
-    {
-      setCenterName("Clemson");
-      setCenter(clemson);
-    }
-  }
-
   const clearDirections = () => {
     if(!directions) return;
     setStartMarkerPosition(null);
@@ -148,17 +142,6 @@ function Map() {
               }}
           >
               GO!
-          </Button>}
-          {<Button
-              onClick={() => toggleCenter()}
-              style={{
-                  border: '2px solid black',
-                  padding: '10px 20px', // Increase padding to make the button bigger
-                  fontSize: '1.2rem', // Increase font size
-                  marginRight: 'auto', // Pushes the GO button to the left
-              }}
-          >
-              Toggle Center
           </Button>}
           {directions && <Button
               onClick={() => clearDirections()}
