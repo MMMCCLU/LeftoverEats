@@ -5,7 +5,7 @@ import Report from "../components/Report";
 import { Chip, Button } from "@mui/material";
 import { useParams } from 'react-router-dom';
 
-const GOOGLE_MAPS_API_KEY = "AIzaSyC9rtri-qhRMWZjYmSkcIOII58z-kNOJ54";
+const GOOGLE_MAPS_API_KEY = "";
 const libraries = ['places'];
 const mapContainerStyle = {
   width: '100vw',
