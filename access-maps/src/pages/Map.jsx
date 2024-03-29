@@ -49,6 +49,12 @@ function Map() {
   const [center, setCenter] = useState({ lat: 34.5034, lng: -82.6501 });
   const [centerName, setCenterName] = useState();
 
+  const [reportPos, setReportMarkerPosition] = useState();
+  const [reportType, setReportType] = useState('Stairs');
+  const [reportMode, setReportMode] = useState(true);
+  //const [hazardMarkers, setHazardMarkers] = useState([]);
+  let hazardMarkers = [];
+
   const options = useMemo(
     () => ({
       mapId: "a4620df1fed5e14e",
@@ -72,7 +78,17 @@ function Map() {
   }
 
   const handleMapClick = (event) => {
-    if(!startPos)
+    console.log('reportMode:', reportMode, 'reportType', reportType);
+    if(reportMode)
+    {
+      setReportMarkerPosition({
+        lat: event.latLng.lat(),
+        lng: event.latLng.lng(),
+      });
+      hazardMarkers.push(reportPos);
+      setReportMode(false);
+    }
+    else if(!startPos)
     {
       setStartMarkerPosition({
         lat: event.latLng.lat(),
@@ -135,6 +151,10 @@ function Map() {
     setEndMarkerPosition(null);
   }
 
+  
+
+
+
   return (
     <div>
       <div style={{ display: 'flex', alignItems: 'center' }}>
@@ -174,7 +194,10 @@ function Map() {
           {startPos && !directions && <Chip label="Start" variant="outlined" onDelete={handleStartDeleteMarker} />}
           {endPos && !directions && <Chip label="End" variant="outlined" onDelete={handleEndDeleteMarker} />}
           <div style={{ marginLeft: 'auto' }}> {/* Aligns the Report button all the way to the right */}
-              <Report />
+              <Report 
+              //type={reportType} mode={reportMode}
+              
+              />
           </div>
       </div>
       <GoogleMap
@@ -186,6 +209,8 @@ function Map() {
       >
         {startPos && !directions && <Marker position={startPos}></Marker> }
         {endPos && !directions && <Marker position={endPos}></Marker>}
+        {hazardMarkers.map(hazardPos => <Marker key={hazardPos.lat} position={hazardPos}/>)}
+        {false/*reportPos*/ && <Marker position={reportPos} />}
         {directions && (
           <DirectionsRenderer
             directions={directions}

@@ -6,16 +6,24 @@ import Drawer from '@mui/material/Drawer';
 function Report()
 {
     const [open, setOpen] = useState(false);
+    const [reportType, setReportType] = useState();
+    const [reportMode, setReportMode] = useState(false);
 
     const toggleDrawer = (isOpen) => () => {
         setOpen(isOpen);
     };
 
+    const handleReportSubmit = (type) => {
+        setReportType(type);
+        setReportMode(true);
+        setOpen(false); // Close the drawer after report submission
+    };
+
     const DrawerList = (
         <div>
-            <Button>Ramp</Button>
-            <Button>Stair</Button>
-            <Button>Elevator</Button>
+            <Button onClick={() => handleReportSubmit('Ramp')}>Ramp</Button>
+            <Button onClick={() => handleReportSubmit('Stair')}>Stair</Button>
+            <Button onClick={() => handleReportSubmit('Elevator')}>Elevator</Button>
             {/* ADD MORE REPORT CASES */}
         </div>
     );
@@ -39,8 +47,11 @@ function Report()
         >
 
             {DrawerList}
+            {reportMode && <p>Report submitted: {reportType}</p>}
         </Drawer>
+        
     </div>
+    
     );
 };
 export default Report;
