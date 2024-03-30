@@ -10,7 +10,7 @@ const mapContainerStyle = {
 };
 
 //const center = { lat: 34.6834, lng: -82.8374 };
-const center = {lat: 34.67746801796802, lng: -82.83621206595672};
+const center = {lat:34.678052962684404, lng:-82.83651941870923};
 
 const polygonCoords = require("../coordinates/polygons.json");
 const elevatorCoords = require("../coordinates/elevators.json");
@@ -61,6 +61,7 @@ function Map() {
         mapId={"a4620df1fed5e14e"}
         onClick={handleMapClick}
       >
+
 		{elevatorCoords.coords.map(mark =>
 			<Marker
 				key={mark.lat}
@@ -72,7 +73,7 @@ function Map() {
 		{polygonCoords.polygons.map((polygonCoordinates, index) => (
 			<Polygon
 				key={index}
-				paths={polygonCoordinates}
+				paths={polygonCoordinates.path}
 				options={stairHazard}
 			/>))
 		}
