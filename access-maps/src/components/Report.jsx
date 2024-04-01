@@ -5,6 +5,8 @@ import Drawer from '@mui/material/Drawer';
 // TODO: This is a report button to add a feature to the map- Please IMPLEMENT ME!
 const Report = (props) => {
     const [open, setOpen] = useState(false);
+    const [reportType, setReportType] = useState();
+    const [reportMode, setReportMode] = useState(false);
 
     const toggleDrawer = (isOpen) => () => {
         setOpen(isOpen);
@@ -46,8 +48,11 @@ const Report = (props) => {
         >
 
             {DrawerList}
+            {reportMode && <p>Report submitted: {reportType}</p>}
         </Drawer>
+        
     </div>
+    
     );
 };
 export default Report;
