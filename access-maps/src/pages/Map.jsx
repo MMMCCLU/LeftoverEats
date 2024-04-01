@@ -64,9 +64,6 @@ function Map() {
   const [center, setCenter] = useState({ lat: 34.5034, lng: -82.6501 });
   const [reportType, setReportType] = useState(null);
 
-  console.log("MAP: ", reportType);
-
-
   useEffect(() => {
     // Set Google Maps Center based on mapName
     if (mapName === "Clemson") {
