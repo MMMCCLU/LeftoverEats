@@ -5,7 +5,7 @@ import Report from "../components/Report";
 import { Chip, Button } from "@mui/material";
 import { useParams } from 'react-router-dom';
 
-const GOOGLE_MAPS_API_KEY = "";
+const GOOGLE_MAPS_API_KEY = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
 const libraries = ['places'];
 const mapContainerStyle = {
   width: '100vw',
@@ -51,7 +51,6 @@ function handleMapClick (event){
 
 function Map() {
   const { mapName } = useParams();
-  const [WIZARD_OF_OZ_POS, setWizardOzPosition] = useState();
   const [startPos, setStartMarkerPosition] = useState();
   const [endPos, setEndMarkerPosition] = useState();
   const [elevatorPos, setElevatorPosition] = useState();
@@ -131,11 +130,6 @@ function Map() {
           lng: event.latLng.lng(),
         });
 
-        setWizardOzPosition({
-          lat: event.latLng.lat(),
-          lng: event.latLng.lng(),
-        });
-
         // Turn off reporting
         setReportType(null);
       }
@@ -199,19 +193,12 @@ function Map() {
   const fetchDirections = () => {
     // Return if start or end positions are not both defined
     // TODO: REMOVE WIZARD OF OZ AFTER DEMO
-    if(!startPos || !endPos || !WIZARD_OF_OZ_POS) return;
-
-    const waypts =[];
-    waypts.push({
-      location: WIZARD_OF_OZ_POS,
-      stopover: true
-    });
+    if(!startPos || !endPos) return;
 
     const service = new window.google.maps.DirectionsService();
     service.route(
       {
         origin: startPos,
-        waypoints: waypts,
         destination: endPos,
         travelMode: window.google.maps.TravelMode.WALKING,
       },
