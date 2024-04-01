@@ -181,15 +181,12 @@ function Map() {
         // TODO: Implement next milestone
       }
     }
-    console.log("DEBUG ", reportMode);
-
   };
 
   console.log(stairs);
 
   const fetchDirections = () => {
     // Return if start or end positions are not both defined
-    // TODO: REMOVE WIZARD OF OZ AFTER DEMO
     if(!startPos || !endPos) return;
 
     const service = new window.google.maps.DirectionsService();
@@ -206,13 +203,6 @@ function Map() {
       }
     );
   };
-
-  const clearDirections = () => {
-    if(!directions) return;
-    setStartMarkerPosition(null);
-    setEndMarkerPosition(null);
-    setDirections(null);
-  }
 
   const handleStartDeleteMarker = (event) => {
     setStartMarkerPosition(null);
@@ -255,17 +245,6 @@ function Map() {
           >
               GO!
           </Button>}
-          {/* {directions && <Button
-              onClick={() => clearDirections()}
-              style={{
-                  border: '2px solid black',
-                  padding: '10px 20px', // Increase padding to make the button bigger
-                  fontSize: '1.2rem', // Increase font size
-                  marginRight: 'auto', // Pushes the GO button to the left
-              }}
-          >
-              Clear Directions
-          </Button>} */}
           {startPos && !directions && <Chip label="Start" variant="outlined" style={{ marginRight: '5px', backgroundColor: 'pink' }} onDelete={handleStartDeleteMarker} />}
           {endPos && !directions && <Chip label="End" variant="outlined" style={{ marginRight: '5px', backgroundColor: 'lightgreen' }} onDelete={handleEndDeleteMarker} />}
           <div style={{ marginLeft: 'auto' }}> {/* Aligns the Report button all the way to the right */}
