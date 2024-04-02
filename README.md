@@ -9,5 +9,5 @@ A github for leftover eats project
 5) BACKEND - Partially Working and NOT required to run the demo
 - To install backend run "npm install" in the "access-maps" directory
 - To run: "node index.js" from within same directory as index.js
-- Test calls with routes: "/test" and "/" if you have permissions
+- Test calls with routes: "/test"
 
