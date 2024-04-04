@@ -9,6 +9,7 @@ const getHomeInfoFromDb = async () => {
   
       // Retrieves all information from the "about" table
       const [results] = await pool.execute('SELECT * FROM about;');
+      await connection.commit();
 
       return results;
     } catch (error) {

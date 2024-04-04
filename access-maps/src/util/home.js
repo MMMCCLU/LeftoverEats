@@ -19,7 +19,6 @@ export async function fetchHome() {
         throw error;
     }
 
-    const { home } = await response.json();
-
+    const home = await response.json();
     return home;
 }
