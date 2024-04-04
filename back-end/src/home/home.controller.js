@@ -4,6 +4,7 @@ const {
 
   const fetchHome = async (req, res) => {
     try {
+      console.log("Received a call for home");
       const home = await getHomeInfoFromDb();
       res.status(200).json(home);
     } catch (error) {
