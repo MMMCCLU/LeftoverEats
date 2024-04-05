@@ -4,6 +4,7 @@ import { GoogleMap, useLoadScript, Marker, DirectionsRenderer , Polygon} from '@
 import Report from "../components/Report";
 import { Chip, Button } from "@mui/material";
 import { useParams } from 'react-router-dom';
+import ElvG from "../images/Elevator.svg"
 
 const GOOGLE_MAPS_API_KEY = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
 const libraries = ['places'];
@@ -11,8 +12,8 @@ const mapContainerStyle = {
   width: '100vw',
   height: '80vh',
 };
-
-const clemson = { lat: 34.6834, lng: -82.8374 };  
+//const clemson = { lat: 34.6834, lng: -82.8374 };
+const clemson = { lat: 34.6775, lng: -82.8362};
 const greenville = { lat: 34.8526, lng: -82.3940};
 
 const polygonCoords = require("../coordinates/polygons.json");
@@ -39,11 +40,6 @@ const rampPath = {
 	strokeColor: "#000000",
 	fillColor: "#00FF00",
 };
-
-const elevatorMarker = {
-	//icon:"../images/Elevator.svg",
-	scale: 1
-}
 
 function handleMapClick (event){
 	console.log('Clicked coordinates:', event.latLng.lat(), event.latLng.lng());
@@ -98,6 +94,7 @@ function Map() {
   }
 
   const handleMapClick = (reportMode) => (event) => {
+	console.log('Clicked coordinates:', event.latLng.lat(), event.latLng.lng());
     // If map was clicked without being in "report" mode
     if(!reportMode)
     {
@@ -288,7 +285,20 @@ function Map() {
         />
         )
         }
-  {elevatorCoords.coords.map(mark => <Marker key={mark.lat} position={mark} icon={{url: "https://upload.wikimedia.org/wikipedia/commons/7/73/Aiga_elevator.png", scaledSize: new window.google.maps.Size(50, 80)}}/>)}
+  //{elevatorCoords.coords.map(mark => <Marker key={mark.lat} position={mark} icon={{url: "https://upload.wikimedia.org/wikipedia/commons/7/73/Aiga_elevator.png", scaledSize: new window.google.maps.Size(50, 80)}}/>)}
+	{
+	elevatorCoords.coords.map(mark =>
+		<Marker
+		key={mark.lat}
+		position={mark}
+		icon={{
+			url: ElvG,
+			scaledSize: new window.google.maps.Size(180, 180),
+			origin: new window.google.maps.Point(0,0),
+			anchor: new window.google.maps.Point(0,0)
+		}}
+		/>)
+	}
 
 	{polygonCoords.polygons.map((polygonCoordinates, index) => (
 		<Polygon
