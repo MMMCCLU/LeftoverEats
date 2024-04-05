@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" width="816" height="1056" fill-rule="evenodd" stroke-linejoin="round" stroke-width="28.222" preserveAspectRatio="xMidYMid" version="1.2" viewBox="0 0 21590 27940">
+  <defs class="ClipPathGroup">
+    <clipPath id="a" clipPathUnits="userSpaceOnUse">
+      <path d="M0 0h21590v27940H0z"/>
+    </clipPath>
+  </defs>
+  <g class="SlideGroup">
+    <g class="Slide" clip-path="url(#a)">
+      <g class="Page">
+        <g class="com.sun.star.drawing.CustomShape">
+          <path fill="none" d="M8857 13937h3972v4606H8857z" class="BoundingBox"/>
+          <path fill="#F10D0C" d="M9889 14017v3333h-952l1905 1112 1906-1112h-953v-3333H9889Z"/>
+          <path fill="none" stroke="#000" stroke-width="159" d="M9889 14017v3333h-952l1905 1112 1906-1112h-953v-3333H9889Z"/>
+        </g>
+        <g class="com.sun.star.drawing.TableShape">
+          <path fill="none" d="M4997 8621h11599v5129H4997z" class="BoundingBox"/>
+          <path fill="#AFD095" d="M5156 8780h2819v962H5156v-962ZM7975 8780h2819v962H7975v-962ZM10794 8780h2819v962h-2819v-962ZM13613 8780h2823v962h-2823v-962Z"/>
+          <path fill="#FF5429" d="M5156 9742h2819v962H5156v-962ZM7975 9742h2819v962H7975v-962Z"/>
+          <path fill="#AFD095" d="M10794 9742h2819v962h-2819v-962ZM13613 9742h2823v962h-2823v-962Z"/>
+          <path fill="#FF5429" d="M5156 10704h2819v962H5156v-962ZM7975 10704h2819v962H7975v-962ZM10794 10704h2819v962h-2819v-962Z"/>
+          <path fill="#AFD095" d="M13613 10704h2823v962h-2823v-962Z"/>
+          <path fill="#FF5429" d="M5156 11666h2819v962H5156v-962ZM7975 11666h2819v962H7975v-962ZM10794 11666h2819v962h-2819v-962ZM13613 11666h2823v962h-2823v-962ZM5156 12628h2819v962H5156v-962ZM7975 12628h2819v962H7975v-962ZM10794 12628h2819v962h-2819v-962ZM13613 12628h2823v962h-2823v-962Z"/>
+          <path fill="none" stroke="#000" stroke-width="159" d="M5077 8780h11438M5156 8701v4968M16436 8701v4968M5077 9742h5796M10794 9663v1120M10715 10704h2977M13613 10625v1120M13534 11666h2981M5077 13590h11438"/>
+        </g>
+      </g>
+    </g>
+  </g>
+</svg>
