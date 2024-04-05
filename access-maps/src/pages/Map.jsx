@@ -290,7 +290,7 @@ function Map() {
 		position={mark}
 		icon={{
 			url: elevatorIcon,
-			scaledSize: new window.google.maps.Size(180, 180),
+			scaledSize: new window.google.maps.Size(90, 100),
 		}}
 		/>)
 	}
