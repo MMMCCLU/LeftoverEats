@@ -4,7 +4,8 @@ import { GoogleMap, useLoadScript, Marker, DirectionsRenderer , Polygon} from '@
 import Report from "../components/Report";
 import { Chip, Button } from "@mui/material";
 import { useParams } from 'react-router-dom';
-import ElvG from "../images/Elevator.svg"
+import elevatorIcon from "../images/Elevator.svg"
+import elevatorDropperIcon from "../images/ElevatorPlaceMarker.svg"
 
 const GOOGLE_MAPS_API_KEY = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
 const libraries = ['places'];
@@ -18,6 +19,7 @@ const greenville = { lat: 34.8526, lng: -82.3940};
 
 const polygonCoords = require("../coordinates/polygons.json");
 const elevatorCoords = require("../coordinates/elevators.json");
+const reportIcon = "https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png";
 
 const stairHazard = {
 	strokeOpacity:0.9,
@@ -39,10 +41,6 @@ const rampPath = {
 	visible:true,
 	strokeColor: "#000000",
 	fillColor: "#00FF00",
-};
-
-function handleMapClick (event){
-	console.log('Clicked coordinates:', event.latLng.lat(), event.latLng.lng());
 };
 
 function Map() {
@@ -259,10 +257,10 @@ function Map() {
         {endPos && !directions && <Marker position={endPos}></Marker>}
         {elevatorPos && <Marker 
         position={elevatorPos} 
-          icon={{url: "https://upload.wikimedia.org/wikipedia/commons/7/73/Aiga_elevator.png", scaledSize: new window.google.maps.Size(50, 80)}}></Marker>}
+          icon={{url: elevatorDropperIcon, scaledSize: new window.google.maps.Size(50, 80)}}></Marker>}
         {stairs.map((position, index) => (
                 position && (
-                    <Marker key={index} position={position} icon="https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png" />
+                    <Marker key={index} position={position} icon={reportIcon} />
                 )
             ))}
         {stairsSet && <Polygon
@@ -271,7 +269,7 @@ function Map() {
         />}
         {ramp.map((position, index) => (
                 position && (
-                    <Marker key={index} position={position} icon="https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png" />
+                    <Marker key={index} position={position} icon={reportIcon} />
                 )
             ))}
         {rampSet && <Polygon
@@ -285,17 +283,14 @@ function Map() {
         />
         )
         }
-  //{elevatorCoords.coords.map(mark => <Marker key={mark.lat} position={mark} icon={{url: "https://upload.wikimedia.org/wikipedia/commons/7/73/Aiga_elevator.png", scaledSize: new window.google.maps.Size(50, 80)}}/>)}
 	{
 	elevatorCoords.coords.map(mark =>
 		<Marker
 		key={mark.lat}
 		position={mark}
 		icon={{
-			url: ElvG,
+			url: elevatorIcon,
 			scaledSize: new window.google.maps.Size(180, 180),
-			origin: new window.google.maps.Point(0,0),
-			anchor: new window.google.maps.Point(0,0)
 		}}
 		/>)
 	}
@@ -313,3 +308,5 @@ function Map() {
 };
 
 export default Map;
+
+//{elevatorCoords.coords.map(mark => <Marker key={mark.lat} position={mark} icon={{url: "https://upload.wikimedia.org/wikipedia/commons/7/73/Aiga_elevator.png", scaledSize: new window.google.maps.Size(50, 80)}}/>)}
