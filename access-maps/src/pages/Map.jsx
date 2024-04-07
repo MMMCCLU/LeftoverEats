@@ -20,6 +20,7 @@ const greenville = { lat: 34.8526, lng: -82.3940};
 const polygonCoords = require("../coordinates/polygons.json");
 const elevatorCoords = require("../coordinates/elevators.json");
 const reportIcon = "https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png";
+const reportPolygonLimit = 10;
 
 const stairHazard = {
 	strokeOpacity:0.9,
@@ -51,12 +52,20 @@ function Map() {
   const [stairs, setStairs] = useState(Array(4).fill(null));
   const [stairIndex, setStairIndex] = useState(0);
   const [stairsSet, setStairsSet] = useState(false);
-  const [ramp, setRamp] = useState(Array(4).fill(null));
+  const [ramp, setRamp] = useState(Array(reportPolygonLimit).fill(null));
   const [rampIndex, setRampIndex] = useState(0);
   const [rampSet, setRampSet] = useState(false);
   const [directions, setDirections] = useState();
   const [center, setCenter] = useState({ lat: 34.5034, lng: -82.6501 });
   const [reportType, setReportType] = useState(null);
+  const [name, setName] = useState("");
+	/*
+  const Button = () => {
+      const [getName, setName] = useState(false);
+      const handleNameChange = () => {
+        setName(!getName);
+      };
+	 */
 
   useEffect(() => {
     // Set Google Maps Center based on mapName
@@ -127,7 +136,7 @@ function Map() {
       }
       else if(reportMode === "Stair")
       {
-        if(stairIndex === 4)
+        if(stairIndex === reportPolygonLimit)
         {
           // Reset stair and turn off reporting
           setReportType(null);
@@ -151,7 +160,7 @@ function Map() {
       }
       else if(reportMode === "Ramp")
       {
-        if(rampIndex === 4)
+        if(rampIndex === reportPolygonLimit)
         {
           // Reset stair and turn off reporting
           setReportType(null);
@@ -212,23 +221,39 @@ function Map() {
     setReportType(type);
     if(type === "Ramp")
     {
-      
+		setName("Reporting: Ramps")
+      //set "Reporting Ramps" to button
     }
     else if(type === "Stair")
     {
 
+		setName("Reporting: Stairs")
+      //set "Reporting Stairs" to button
     }
     else if(type === "Elevator")
     {
-      
+		setName("Reporting: Elevators")
+      //set "Reporting Elevators" to button
     }
-
-    // Set Marker elevator
   };
+
+	const handleReportTypeAction = (type) => {
+		if(type === "Cancel"){
+			//reset
+		}else if(type === "Undo"){
+			//removed previous index
+		}else if(type === "Confirm"){
+			//set to database
+		}
+	}
+
+	//create a middle label for current report button
+	//create two buttons left is cancel right is confirm
+	//undo on bottom
 
   return (
     <div>
-      <div style={{ display: 'flex', alignItems: 'left',  justifyContent: 'left'  }}>
+	 <div style={{ display: 'flex', justifyContent:"center", alignItems:"center", flexWrap:"nowrap"}}>
           {startPos && endPos && <Button
               onClick={() => fetchDirections()}
               style={{
@@ -240,10 +265,20 @@ function Map() {
           >
               GO!
           </Button>}
-          {startPos && !directions && <Chip label="Start" variant="outlined" style={{ marginRight: '5px', backgroundColor: 'pink' }} onDelete={handleStartDeleteMarker} />}
-          {endPos && !directions && <Chip label="End" variant="outlined" style={{ marginRight: '5px', backgroundColor: 'lightgreen' }} onDelete={handleEndDeleteMarker} />}
-          <div style={{ marginLeft: 'auto' }}> {/* Aligns the Report button all the way to the right */}
-            <Report onReportTypeChange={handleReportTypeChange} />
+          {startPos && !directions && <Chip 
+					label="Start"
+					variant="outlined" 
+					style={{ marginRight: '5px', backgroundColor: 'pink' }}
+					onDelete={handleStartDeleteMarker}
+				/>}
+          {endPos && !directions && <Chip
+					label="End"
+					variant="outlined"
+					style={{ marginRight: '5px', backgroundColor: 'lightgreen' }}
+					onDelete={handleEndDeleteMarker} 
+				/>}
+          <div> {/* Aligns the Report button all the way to the right */}
+            <Report onReportTypeChange={handleReportTypeChange} onReportActionClicked={ handleReportTypeAction}/>
           </div>
       </div>
       <GoogleMap
@@ -255,8 +290,8 @@ function Map() {
       >
         {startPos && !directions && <Marker position={startPos}></Marker> }
         {endPos && !directions && <Marker position={endPos}></Marker>}
-        {elevatorPos && <Marker 
-        position={elevatorPos} 
+        {elevatorPos && <Marker
+        position={elevatorPos}
           icon={{url: elevatorDropperIcon, scaledSize: new window.google.maps.Size(50, 80)}}></Marker>}
         {stairs.map((position, index) => (
                 position && (
@@ -284,6 +319,8 @@ function Map() {
         )
         }
 	{
+
+	//setting predefined points
 	elevatorCoords.coords.map(mark =>
 		<Marker
 		key={mark.lat}
@@ -309,4 +346,5 @@ function Map() {
 
 export default Map;
 
+//<div style={{ display: 'flex', alignItems: 'left',  justifyContent: 'left'  }}>
 //{elevatorCoords.coords.map(mark => <Marker key={mark.lat} position={mark} icon={{url: "https://upload.wikimedia.org/wikipedia/commons/7/73/Aiga_elevator.png", scaledSize: new window.google.maps.Size(50, 80)}}/>)}
