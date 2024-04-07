@@ -25,6 +25,9 @@ const Report = (props) => {
     const handleReportClick = (type) => {
         // Call the onReportTypeChange function passed from Map component
         props.onReportTypeChange(type);
+	var hiddenItem = document.getElementById("hidden_div");
+	 hiddenItem.style.display = "block";
+
         // Close the drawer
         setOpen(false);
         setVisible(true);
@@ -33,16 +36,6 @@ const Report = (props) => {
 	const handleReportAction = (type) => {
 		props.onReportActionClicked(type);
 	};
-
-    
-	const ReportCue = (
-		<div>
-            <Button onClick={() => handleReportClick("Cancel")}>Cancel</Button>
-            <Button onClick={() => handleReportClick("Undo")}>Undo</Button>
-            <Button onClick={() => handleReportClick("Confirm")}>Confirm</Button>
-
-		</div>
-	);
 
     const DrawerList = (
         <div>
@@ -57,9 +50,9 @@ const Report = (props) => {
     return (
 	<div>
 		<div id="hidden_div" style={{display:"none", justifyContent:"center", flexGrow:"1"}}>
-			<Button style={actionButtonProps}> CANCEL </Button>
-			<Button style={actionButtonProps}> UNDO </Button>
-			<Button style={actionButtonProps}> CONFIRM </Button>
+			<Button onClick={() => handleReportAction("Cancel")} style={actionButtonProps}> CANCEL </Button>
+			<Button onClick={() => handleReportAction("Undo")} style={actionButtonProps}> UNDO </Button>
+			<Button onClick={() => handleReportAction("Confirm")} style={actionButtonProps}> CONFIRM </Button>
 			<div>
 				<h2>Reporting "thing": </h2>
 			</div>
