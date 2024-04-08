@@ -2,6 +2,7 @@ import { useMemo, useState, useEffect } from 'react';
 import React from 'react';
 import { GoogleMap, useLoadScript, Marker, DirectionsRenderer , Polygon} from '@react-google-maps/api';
 import Report from "../components/Report";
+import AccessibilityRouter from '../components/AccessibilityRouter';
 import { Chip, Button } from "@mui/material";
 import { useParams } from 'react-router-dom';
 
@@ -12,11 +13,9 @@ const mapContainerStyle = {
   height: '80vh',
 };
 
-const clemson = { lat: 34.6834, lng: -82.8374 };  
+const clemson = { lat: 34.6770, lng: -82.8360 };  
 const greenville = { lat: 34.8526, lng: -82.3940};
 
-const polygonCoords = require("../coordinates/polygons.json");
-const elevatorCoords = require("../coordinates/elevators.json");
 
 const stairHazard = {
 	strokeOpacity:0.9,
@@ -53,6 +52,9 @@ function Map() {
   const { mapName } = useParams();
   const [startPos, setStartMarkerPosition] = useState();
   const [endPos, setEndMarkerPosition] = useState();
+  const [getDirections, setGetDirections] = useState(false);
+  const [polygons, setPolygons] = useState(require("../coordinates/polygons.json"));
+  const [elevators, setElevators] = useState(require("../coordinates/elevators.json"));
   const [elevatorPos, setElevatorPosition] = useState();
   const [stairs, setStairs] = useState(Array(4).fill(null));
   const [stairIndex, setStairIndex] = useState(0);
@@ -60,7 +62,6 @@ function Map() {
   const [ramp, setRamp] = useState(Array(4).fill(null));
   const [rampIndex, setRampIndex] = useState(0);
   const [rampSet, setRampSet] = useState(false);
-  const [directions, setDirections] = useState();
   const [center, setCenter] = useState({ lat: 34.5034, lng: -82.6501 });
   const [reportType, setReportType] = useState(null);
 
@@ -186,23 +187,8 @@ function Map() {
   console.log(stairs);
 
   const fetchDirections = () => {
-    // Return if start or end positions are not both defined
-    if(!startPos || !endPos) return;
-
-    const service = new window.google.maps.DirectionsService();
-    service.route(
-      {
-        origin: startPos,
-        destination: endPos,
-        travelMode: window.google.maps.TravelMode.WALKING,
-      },
-      (result, status) => {
-        if (status === "OK" && result) {
-          setDirections(result);
-        }
-      }
-    );
-  };
+    setGetDirections(true);
+  }
 
   const handleStartDeleteMarker = (event) => {
     setStartMarkerPosition(null);
@@ -233,24 +219,6 @@ function Map() {
 
   return (
     <div>
-      <div style={{ display: 'flex', alignItems: 'left',  justifyContent: 'left'  }}>
-          {startPos && endPos && <Button
-              onClick={() => fetchDirections()}
-              style={{
-                  border: '2px solid black',
-                  padding: '10px 20px', // Increase padding to make the button bigger
-                  fontSize: '1.2rem', // Increase font size
-                  marginRight: '25px', // Pushes the GO button to the left
-              }}
-          >
-              GO!
-          </Button>}
-          {startPos && !directions && <Chip label="Start" variant="outlined" style={{ marginRight: '5px', backgroundColor: 'pink' }} onDelete={handleStartDeleteMarker} />}
-          {endPos && !directions && <Chip label="End" variant="outlined" style={{ marginRight: '5px', backgroundColor: 'lightgreen' }} onDelete={handleEndDeleteMarker} />}
-          <div style={{ marginLeft: 'auto' }}> {/* Aligns the Report button all the way to the right */}
-            <Report onReportTypeChange={handleReportTypeChange} />
-          </div>
-      </div>
       <GoogleMap
         mapContainerStyle={mapContainerStyle}
         zoom={18}
@@ -258,8 +226,32 @@ function Map() {
         options={options}
         onClick={handleMapClick(reportType)}
       >
-        {startPos && !directions && <Marker position={startPos}></Marker> }
-        {endPos && !directions && <Marker position={endPos}></Marker>}
+        <div style={{ display: 'flex', alignItems: 'left',  justifyContent: 'left'  }}>
+          {startPos && endPos && <Button
+              onClick={() => fetchDirections()}
+              style={{
+                  border: '2px solid black',
+                  padding: '10px 20px', // Increase padding to make the button bigger
+                  fontSize: '1.2rem', // Increase font size
+                  marginRight: '25px', // Pushes the GO button to the left
+                  backgroundColor: 'white',
+              }}
+          >
+              GO!
+          </Button>}
+          {startPos && !getDirections && <Chip label="Start" variant="outlined" style={{ marginRight: '5px', backgroundColor: 'pink' }} onDelete={handleStartDeleteMarker} />}
+          {endPos && !getDirections && <Chip label="End" variant="outlined" style={{ marginRight: '5px', backgroundColor: 'lightgreen' }} onDelete={handleEndDeleteMarker} />}
+          <div style={{ marginLeft: 'auto' }}> {/* Aligns the Report button all the way to the right */}
+            <Report onReportTypeChange={handleReportTypeChange} />
+          </div>
+        </div>
+        <AccessibilityRouter
+          polygons={polygons}
+          startPos={startPos}
+          endPos={endPos}
+          getDirections={getDirections}
+        >
+        </AccessibilityRouter>
         {elevatorPos && <Marker 
         position={elevatorPos} 
           icon={{url: "https://upload.wikimedia.org/wikipedia/commons/7/73/Aiga_elevator.png", scaledSize: new window.google.maps.Size(50, 80)}}></Marker>}
@@ -281,22 +273,15 @@ function Map() {
           paths={ramp}
           options={rampPath}
         />}
-        
-        {directions && (
-          <DirectionsRenderer
-            directions={directions}
-        />
-        )
-        }
-  {elevatorCoords.coords.map(mark => <Marker key={mark.lat} position={mark} icon={{url: "https://upload.wikimedia.org/wikipedia/commons/7/73/Aiga_elevator.png", scaledSize: new window.google.maps.Size(50, 80)}}/>)}
+      {startPos && elevators.coords.map(mark => <Marker key={mark.lat} position={mark} icon={{url: "https://upload.wikimedia.org/wikipedia/commons/7/73/Aiga_elevator.png", scaledSize: new window.google.maps.Size(50, 80)}}/>)}
 
-	{polygonCoords.polygons.map((polygonCoordinates, index) => (
-		<Polygon
-			key={index}
-			paths={polygonCoordinates}
-			options={stairHazard}
-		/>))
-	}
+      {startPos && polygons.polygons.map((polygonCoordinates, index) => (
+        <Polygon
+          key={index}
+          paths={polygonCoordinates}
+          options={stairHazard}
+        />))
+      }
       </GoogleMap>
     </div>
   );
