@@ -213,19 +213,19 @@ function Map() {
 			//remove markers
 		}else if(type === "Undo"){
 			console.log("Undo");
-			if(type === "Ramp"){
+			if(reportType === "Ramp"){
 				if(rampIndex > 1){
 					setRampIndex(rampIndex - 1);
 					//remove marker
 				}
 			}
-			else if(type === "Stair"){
+			else if(reportType === "Stair"){
 				if(stairIndex > 1){
 					setRampIndex(stairIndex - 1);
 					//remove marker
 				}
 			}
-			else if(type === "Elevator"){
+			else if(reportType === "Elevator"){
 				setElevatorPosition(null);
 				//remove marker
 			}
