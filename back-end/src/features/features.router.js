@@ -4,6 +4,6 @@ const {
   fetchMapFeatures,
 } = require('./features.controller');
 
-featuresRouter.route('/:id').get(fetchMapFeatures)
+featuresRouter.route('').get(fetchMapFeatures)
 
 module.exports = featuresRouter;

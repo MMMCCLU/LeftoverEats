@@ -1,5 +1,5 @@
 const {
-    getFeaturesFromDb
+    getMapFeaturesFromDb
   } = require('./features.service');
 
   const fetchMapFeatures = async (req, res) => {
