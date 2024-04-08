@@ -4,6 +4,8 @@ import { GoogleMap, useLoadScript, Marker, DirectionsRenderer , Polygon} from '@
 import Report from "../components/Report";
 import { Chip, Button } from "@mui/material";
 import { useParams } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
+import { fetchMapFeatures } from '../util/features';
 
 const GOOGLE_MAPS_API_KEY = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
 const libraries = ['places'];
@@ -63,6 +65,11 @@ function Map() {
   const [directions, setDirections] = useState();
   const [center, setCenter] = useState({ lat: 34.5034, lng: -82.6501 });
   const [reportType, setReportType] = useState(null);
+
+  const { data = [], error, isLoading } = useQuery({
+    queryKey: ['features'],
+    queryFn: fetchMapFeatures,
+  });
 
   useEffect(() => {
     // Set Google Maps Center based on mapName
@@ -184,6 +191,7 @@ function Map() {
   };
 
   console.log(stairs);
+  console.log(data);
 
   const fetchDirections = () => {
     // Return if start or end positions are not both defined
@@ -231,6 +239,9 @@ function Map() {
     // Set Marker elevator
   };
 
+  //const dbMarkers = useMemo(() => generateMarkers(data), [data]);
+  const dbMarkers = generateMarkers(data);
+
   return (
     <div>
       <div style={{ display: 'flex', alignItems: 'left',  justifyContent: 'left'  }}>
@@ -260,6 +271,7 @@ function Map() {
       >
         {startPos && !directions && <Marker position={startPos}></Marker> }
         {endPos && !directions && <Marker position={endPos}></Marker>}
+        {/* {dbMarkers.map(aPoint => <Marker key={aPoint.lat} pos={aPoint} />)} */}
         {elevatorPos && <Marker 
         position={elevatorPos} 
           icon={{url: "https://upload.wikimedia.org/wikipedia/commons/7/73/Aiga_elevator.png", scaledSize: new window.google.maps.Size(50, 80)}}></Marker>}
@@ -301,5 +313,20 @@ function Map() {
     </div>
   );
 };
+
+const generateMarkers = (markerData) => {
+  const _markers = [];
+  // markerData.array.map(element => {
+  //   if (element.featureType == 'elevator'){
+  //     _markers.push({
+  //       lat: element.latitude,
+  //       lng: element.longitude,
+  //       //urlpng: "https://upload.wikimedia.org/wikipedia/commons/7/73/Aiga_elevator.png",
+  //     });
+  //   }
+  // });
+  
+  return _markers;
+}
 
 export default Map;
