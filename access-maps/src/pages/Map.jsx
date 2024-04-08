@@ -44,6 +44,7 @@ const rampPath = {
 	fillColor: "#00FF00",
 };
 
+
 function Map() {
   const { mapName } = useParams();
   const [startPos, setStartMarkerPosition] = useState();
@@ -59,13 +60,6 @@ function Map() {
   const [center, setCenter] = useState({ lat: 34.5034, lng: -82.6501 });
   const [reportType, setReportType] = useState(null);
   const [name, setName] = useState("");
-	/*
-  const Button = () => {
-      const [getName, setName] = useState(false);
-      const handleNameChange = () => {
-        setName(!getName);
-      };
-	 */
 
   useEffect(() => {
     // Set Google Maps Center based on mapName
@@ -124,70 +118,43 @@ function Map() {
     // Map click should create a report
     else
     {
+	//zoom into current position
+	//set circle 15m to say where can report
       if(reportMode === "Elevator")
       {
         setElevatorPosition({
           lat: event.latLng.lat(),
           lng: event.latLng.lng(),
         });
-
-        // Turn off reporting
-        setReportType(null);
       }
-      else if(reportMode === "Stair")
+      else if(reportMode === "Stair" && stairIndex < reportPolygonLimit)
       {
-        if(stairIndex === reportPolygonLimit)
-        {
-          // Reset stair and turn off reporting
-          setReportType(null);
-          setStairIndex(0);
-          setStairsSet(true);
-        }
-        else
-        {
           setStairs(stairs => {
             const updatedStairs = [...stairs];
-            updatedStairs[stairIndex] = {lat: event.latLng.lat(),
-              lng: event.latLng.lng()};
+            updatedStairs[stairIndex] = {lat: event.latLng.lat(), lng: event.latLng.lng()};
             return updatedStairs;
           });
 
-          console.log(stairs);
-        }
-
-        // Increment stair index
-        setStairIndex(stairIndex + 1);
+		// Increment stair index
+		console.log(stairIndex);
+		setStairIndex(stairIndex + 1);
       }
-      else if(reportMode === "Ramp")
+      else if(reportMode === "Ramp" && rampIndex < reportPolygonLimit)
       {
-        if(rampIndex === reportPolygonLimit)
-        {
-          // Reset stair and turn off reporting
-          setReportType(null);
-          setRampIndex(0);
-          setRampSet(true);
-        }
-        else
-        {
           setRamp(ramp => {
             const updatedRamp = [...ramp];
-            updatedRamp[rampIndex] = {lat: event.latLng.lat(),
-              lng: event.latLng.lng()};
+            updatedRamp[rampIndex] = {lat: event.latLng.lat(), lng: event.latLng.lng()};
             return updatedRamp;
           });
-        }
 
-        // Increment stair index
-        setRampIndex(rampIndex + 1);
-      }
-      else
-      {
-        // TODO: Implement next milestone
+		// Increment ramp index
+		console.log(rampIndex);
+		setRampIndex(rampIndex + 1);
       }
     }
   };
 
-  console.log(stairs);
+  //console.log(stairs);
 
   const fetchDirections = () => {
     // Return if start or end positions are not both defined
@@ -216,71 +183,98 @@ function Map() {
     setEndMarkerPosition(null);
   }
 
-  const handleReportTypeChange = (type) => {
-    // Update reportType state in the Map component
-    setReportType(type);
-    if(type === "Ramp")
-    {
-		setName("Reporting: Ramps")
-      //set "Reporting Ramps" to button
-    }
-    else if(type === "Stair")
-    {
-
-		setName("Reporting: Stairs")
-      //set "Reporting Stairs" to button
-    }
-    else if(type === "Elevator")
-    {
-		setName("Reporting: Elevators")
-      //set "Reporting Elevators" to button
-    }
-  };
+	const handleReportTypeChange = (type) => {
+		// Update reportType state in the Map component
+		setReportType(type);
+		var label = document.getElementById("report_label");
+		setRampIndex(0);
+		setStairIndex(0);
+		if(type === "Ramp"){
+			label.textContent = "Reporting: Ramps. Place markers outlining the hazard."
+		}
+		else if(type === "Stair"){
+			label.textContent = "Reporting: Stairs. Place markers outlining the hazard."
+		}
+		else if(type === "Elevator"){
+			label.textContent = "Reporting: Elevators. Place the marker where the elevator is."
+		}
+	};
 
 	const handleReportTypeAction = (type) => {
 		if(type === "Cancel"){
-			//reset
+			console.log("Cancel");
+			//set everything to their zero
+			setReportType(null);
+			setRampIndex(0);
+			setStairIndex(0);
+			setElevatorPosition(null);
+			document.getElementById("report_label").textContent= "";
+			document.getElementById("hidden_div").style.visibility = "hidden";
+			//remove markers
 		}else if(type === "Undo"){
-			//removed previous index
+			console.log("Undo");
+			if(type === "Ramp"){
+				if(rampIndex > 1){
+					setRampIndex(rampIndex - 1);
+					//remove marker
+				}
+			}
+			else if(type === "Stair"){
+				if(stairIndex > 1){
+					setRampIndex(stairIndex - 1);
+					//remove marker
+				}
+			}
+			else if(type === "Elevator"){
+				setElevatorPosition(null);
+				//remove marker
+			}
 		}else if(type === "Confirm"){
-			//set to database
+			var validReport = false;
+			console.log("Confirm");
+			if(reportType === "Ramp"){
+				if(rampIndex > 4){
+					setReportType(null);
+					setRampIndex(0);
+					setRampSet(true);
+					//INSERT polygon to database
+					validReport = true;
+				}
+				//validate if proper polygon
+			}
+			else if(reportType === "Stair"){
+				// Reset stair and turn off reporting
+				//validate if proper polygon
+				if(stairIndex > 4){
+					setReportType(null);
+					setStairIndex(0);
+					setStairsSet(true);
+					//INSERT stair coord to database
+					validReport = true;
+				}
+			}
+			else if(reportType === "Elevator"){
+				if(elevatorPos != null){
+					validReport = true;
+					//INSERT Elevator coord to database
+					setElevatorPosition(null);
+				}
+			}
+			var label = document.getElementById("report_label");
+			if(validReport === true){
+				// Turn off reporting
+				setReportType(null);
+				document.getElementById("hidden_div").style.visibility = "hidden";
+				label.textContent= "Report Sent!";
+				setTimeout(() => label.textContent="", 3000);
+			}else{
+				label.textContent = "Invalid report!";
+			}
 		}
 	}
 
-	//create a middle label for current report button
-	//create two buttons left is cancel right is confirm
-	//undo on bottom
-
   return (
     <div>
-	 <div style={{ display: 'flex', justifyContent:"center", alignItems:"center", flexWrap:"nowrap"}}>
-          {startPos && endPos && <Button
-              onClick={() => fetchDirections()}
-              style={{
-                  border: '2px solid black',
-                  padding: '10px 20px', // Increase padding to make the button bigger
-                  fontSize: '1.2rem', // Increase font size
-                  marginRight: '25px', // Pushes the GO button to the left
-              }}
-          >
-              GO!
-          </Button>}
-          {startPos && !directions && <Chip 
-					label="Start"
-					variant="outlined" 
-					style={{ marginRight: '5px', backgroundColor: 'pink' }}
-					onDelete={handleStartDeleteMarker}
-				/>}
-          {endPos && !directions && <Chip
-					label="End"
-					variant="outlined"
-					style={{ marginRight: '5px', backgroundColor: 'lightgreen' }}
-					onDelete={handleEndDeleteMarker} 
-				/>}
-          <div> {/* Aligns the Report button all the way to the right */}
-            <Report onReportTypeChange={handleReportTypeChange} onReportActionClicked={ handleReportTypeAction}/>
-          </div>
-      </div>
       <GoogleMap
         mapContainerStyle={mapContainerStyle}
         zoom={18}
@@ -288,6 +282,28 @@ function Map() {
         options={options}
         onClick={handleMapClick(reportType)}
       >
+		<div style={{display: "flex", justifyContent: "space-between", alignItems: "center"}}>
+			<div>
+			{startPos && endPos && <Button
+				onClick={() => fetchDirections()}
+				style={{
+					border: '2px solid black',
+					padding: '10px 20px', // Increase padding to make the button bigger
+					fontSize: '1.2rem', // Increase font size
+					marginRight: '25px', // Pushes the GO button to the left
+					backgroundColor: 'white',
+				}}
+			>
+			    GO!
+			</Button>}
+			{startPos && !directions && <Chip label="Start" variant="outlined" style={{ marginRight: '5px', backgroundColor: 'pink' }} onDelete={handleStartDeleteMarker} />}
+			{endPos && !directions && <Chip label="End" variant="outlined" style={{ marginRight: '5px', backgroundColor: 'lightgreen' }} onDelete={handleEndDeleteMarker} />}
+
+			//report has an implicit outer div
+			<Report onReportTypeChange={handleReportTypeChange} onReportActionClicked={handleReportTypeAction}/>
+			</div>
+		</div>
+
         {startPos && !directions && <Marker position={startPos}></Marker> }
         {endPos && !directions && <Marker position={endPos}></Marker>}
         {elevatorPos && <Marker
@@ -318,8 +334,8 @@ function Map() {
         />
         )
         }
+	//get from database
 	{
-
 	//setting predefined points
 	elevatorCoords.coords.map(mark =>
 		<Marker
