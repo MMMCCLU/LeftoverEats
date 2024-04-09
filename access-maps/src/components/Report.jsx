@@ -2,19 +2,13 @@ import React, { useState } from 'react';
 import Button from '@mui/material/Button';
 import Drawer from '@mui/material/Drawer';
 
-const actionButtonProps = {
-	display: 'none',
+const ButtonProps = {
 	border: '2px solid black',
 	padding: '10px 20px', // Increase padding to make the button bigger
 	fontSize: '1.2rem', // Increase font size
+	backgroundColor: 'white',
 };
 
-const reportButtonProps = {
-	border: '2px solid black',
-	padding: '10px 20px', // Increase padding to make the button bigger
-	fontSize: '1.2rem', // Increase font size
-	justifyContent: 'right',
-};
 const Report = (props) => {
     const [open, setOpen] = useState(false);
 	const [visible, setVisible] = useState(false);
@@ -26,14 +20,12 @@ const Report = (props) => {
     const handleReportClick = (type) => {
         // Call the onReportTypeChange function passed from Map component
         props.onReportTypeChange(type);
-		//var hiddenItem = document.getElementById("hidden_div");
-		//hiddenItem.style.display = "block";
-		var buttons = document.getElementsByClassName("hidden_button");
-		for (var i = 0; i < buttons.length; ++i) {
-			var item = buttons[i];
-			item.style.display = "block";
-		}
+		var hiddenItem = document.getElementById("hidden_div");
+		hiddenItem.style.visibility = "visible";
 
+		//zoom into current position
+		//set circle 15m to say where can report
+		//setCenter(testPos);
         // Close the drawer
         setOpen(false);
         setVisible(true);
@@ -53,15 +45,14 @@ const Report = (props) => {
     );
 
     return (
-	<div >
-		<div style={{display:"flex", flexWrap:"nowrap", justifyContent:"center", alignItems:"center"}}>
-			<Button class="hidden_button" onClick={() => handleReportAction("Cancel")} style={actionButtonProps}> CANCEL </Button>
-			<Button class="hidden_button" onClick={() => handleReportAction("Undo")} style={actionButtonProps}> UNDO </Button>
-			<Button class="hidden_button" onClick={() => handleReportAction("Confirm")} style={actionButtonProps}> CONFIRM </Button>
-			<Button onClick={toggleDrawer(true)} style={reportButtonProps}> REPORT </Button>
-			<div>
-				<span id="report_label"></span>
-			</div>
+	<div>
+		<div id="hidden_div" style={{visibility: 'hidden'}}>
+			<Button onClick={() => handleReportAction("Cancel")} style={ButtonProps}> CANCEL </Button>
+			<Button onClick={() => handleReportAction("Undo")} style={ButtonProps}> UNDO </Button>
+			<Button onClick={() => handleReportAction("Confirm")} style={ButtonProps}> CONFIRM </Button>
+		</div>
+		<div style={{flex: "1", marginleft: "auto"}}>
+			<Button onClick={toggleDrawer(true)} style={ButtonProps}> REPORT </Button>
 		</div>
 		<Drawer
 			anchor="right"
