@@ -1,101 +1,115 @@
 import { useMemo, useState, useEffect } from 'react';
 import React from 'react';
-import { GoogleMap, useLoadScript, Marker, DirectionsRenderer , Polygon} from '@react-google-maps/api';
-import Report from "../components/Report";
+import { GoogleMap, useLoadScript, Marker, DirectionsRenderer, InfoWindow } from '@react-google-maps/api';
 import { Chip, Button } from "@mui/material";
 import { useParams } from 'react-router-dom';
 
-function AccessibilityRouter({ polygons, startPos, endPos, getDirections })
-{
+function AccessibilityRouter({ polygons, startPos, endPos, getDirections }) {
     const [directions, setDirections] = useState();
     const [routeIndex, setRouteIndex] = useState();
+    const [pathNotFound, setPathNotFound] = useState(false); // State to track if path was not found
+
+    const directionsOptions = useMemo(() => ({
+        polylineOptions: {
+            strokeColor: "#007bff", // Bright blue color
+            strokeWeight: 5, // Thickness of the line
+            strokeOpacity: 0, // Make the line fully transparent to make it a line of circles
+            icons: [{
+                icon: {
+                    path: window.google.maps.SymbolPath.CIRCLE,
+                    fillColor: '#007bff', // Fill color of the circles
+                    fillOpacity: 1, // Make the circles fully opaque
+                    scale: 8, // Size of the circles
+                    strokeWeight: 0, // No stroke
+                },
+                offset: '0', // Start at the beginning of the polyline
+                repeat: '20px' // Repeat the symbol every 20 pixels
+            }]
+        }
+    }), []);
 
     useEffect(() => {
-        if(getDirections) {
+        if (getDirections) {
             fetchDirections();
         }
     }, [getDirections]);
 
-    
-    const checkForRouteCollisions = (route) => {
-        const routePath = route;
-        const stairsPolygons = polygons.polygons; // Assuming you have polygons representing stairs
-    
-        for (let i = 0; i < stairsPolygons.length; i++) {
-            const stairsPolygon = new window.google.maps.Polygon({
-                paths: stairsPolygons[i],
-            });
-    
-            for (let j = 0; j < routePath.length - 1; j++) {
-                const routeSegment = [routePath[j], routePath[j + 1]];
-    
-                // Check if any midpoint of the route segment lies within the stairs polygon
-                const midPoint = getMidpoint(routeSegment[0], routeSegment[1]);
-
-                // Return true if point lies within any stairs polygons
-                if (window.google.maps.geometry.poly.containsLocation(midPoint, stairsPolygon)) {
-                    return true; // Collision detected
-                }
-            }
-        }
-    
-        return false; // No collision detected
-    };
-    
-    // Function to calculate midpoint of a line segment
-    const getMidpoint = (p1, p2) => {
-        return new window.google.maps.LatLng(
-            (p1.lat() + p2.lat()) / 2,
-            (p1.lng() + p2.lng()) / 2
-        );
-    };
-    
-
     const fetchDirections = () => {
-        // Return if start or end positions are not both defined
         if (!startPos || !endPos) return;
-    
+
         const service = new window.google.maps.DirectionsService();
-    
-        // Specify options for the route requests
+
         const request = {
             origin: startPos,
             destination: endPos,
             travelMode: window.google.maps.TravelMode.WALKING,
-            provideRouteAlternatives: true, // Request alternative routes
+            provideRouteAlternatives: true,
         };
-    
+
         service.route(request, (results, status) => {
             if (status === "OK" && results) {
-                // Check each route for collisions
+                let pathFound = false;
                 for (let i = 0; i < results.routes.length; i++) {
-                    const route = results.routes[i].overview_path; // Access the overview_path property of each route
+                    const route = results.routes[i].overview_path;
                     if (!checkForRouteCollisions(route)) {
-                        // If no collision, set the directions and exit loop
-                        setDirections(results); // Set the entire route object
+                        setDirections(results);
                         setRouteIndex(i);
-                        return;
+                        pathFound = true;
+                        break;
                     }
                 }
-    
-                // If all routes have collisions, handle it here (e.g., reroute or alert user)
-                console.log("All routes contain collisions. Reroute or alert user.");
+                if (!pathFound) {
+                    // No valid path found
+                    setPathNotFound(true);
+                }
             } else {
                 console.error("Error fetching directions:", status);
             }
         });
     };
 
+    const checkForRouteCollisions = (route) => {
+        const routePath = route;
+        const stairsPolygons = polygons.polygons;
+
+        for (let i = 0; i < stairsPolygons.length; i++) {
+            const stairsPolygon = new window.google.maps.Polygon({
+                paths: stairsPolygons[i],
+            });
+
+            for (let j = 0; j < routePath.length - 1; j++) {
+                const routeSegment = [routePath[j], routePath[j + 1]];
+                const midPoint = getMidpoint(routeSegment[0], routeSegment[1]);
+                if (window.google.maps.geometry.poly.containsLocation(midPoint, stairsPolygon)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    };
+
+    const getMidpoint = (p1, p2) => {
+        return new window.google.maps.LatLng(
+            (p1.lat() + p2.lat()) / 2,
+            (p1.lng() + p2.lng()) / 2
+        );
+    };
+
     return (
         <div>
             <div>
-                {startPos && <Marker position={startPos}></Marker> }
-                {endPos && <Marker position={endPos}></Marker>}
+                {startPos && !getDirections && <Marker position={startPos}></Marker>}
+                {endPos && !getDirections && <Marker position={endPos}></Marker>}
                 {getDirections && (
-                <DirectionsRenderer
-                    directions={directions}
-                    routeIndex={routeIndex}
-                />)}
+                    <>
+                        {pathNotFound && <InfoWindow position={startPos}><div>No valid path found.</div></InfoWindow>}
+                        <DirectionsRenderer
+                            directions={directions}
+                            routeIndex={routeIndex}
+                            options={directionsOptions}
+                        />
+                    </>
+                )}
             </div>
         </div>
     );
