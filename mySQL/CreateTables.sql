@@ -8,9 +8,15 @@ CREATE TABLE IF NOT EXISTS about(
 );
 
 CREATE TABLE IF NOT EXISTS feature(
+	featureID INT AUTO_INCREMENT PRIMARY KEY,
+    featureType VARCHAR(50) NOT NULL,
+    createdAt DATE NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS coordinate(
+    coordinateID INT PRIMARY KEY AUTO_INCREMENT,
 	featureID INT NOT NULL,
-    featureType VARCHAR(50),
     latitude FLOAT(30) NOT NULL,
     longitude FLOAT(30) NOT NULL,
-    PRIMARY KEY(featureID, latitude, longitude)
+    FOREIGN KEY (featureID) REFERENCES feature(featureID)
 );
