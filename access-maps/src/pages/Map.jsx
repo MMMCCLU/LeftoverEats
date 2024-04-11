@@ -4,8 +4,9 @@ import { GoogleMap, useLoadScript, Marker, DirectionsRenderer , Polygon} from '@
 import Report from "../components/Report";
 import { Chip, Button } from "@mui/material";
 import { useParams } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
-import { fetchMapFeatures } from '../util/features';
+import { useQuery, useMutation } from '@tanstack/react-query';
+import { queryClient } from '../util/http';
+import { fetchMapFeatures, saveMapFeature } from '../util/features';
 
 const GOOGLE_MAPS_API_KEY = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
 const libraries = ['places'];
@@ -16,6 +17,28 @@ const mapContainerStyle = {
 
 const clemson = { lat: 34.6834, lng: -82.8374 };  
 const greenville = { lat: 34.8526, lng: -82.3940};
+
+const PostFeatureDummyData = {
+  featureType: "ramp",
+  coordinates: [
+    {
+      latitude: 54.6772208204604,
+      longitude: -62.8370558471691
+    },
+    {
+      latitude: 54.6771733964104,
+      longitude: -62.8370588646541
+    },
+    {
+      latitude: 54.6771971084388,
+      longitude: -62.8373559192956
+    },
+    {
+      latitude: 54.6772537820768,
+      longitude: -62.8373371163081
+    }
+  ]
+};
 
 const polygonCoords = require("../coordinates/polygons.json");
 const elevatorCoords = require("../coordinates/elevators.json");
@@ -69,6 +92,17 @@ function Map() {
   const { data = [], error, isLoading } = useQuery({
     queryKey: ['features'],
     queryFn: fetchMapFeatures,
+  });
+
+  const { mutate, isPending, isSaveError, saveError } = useMutation({
+    mutationFn: saveMapFeature,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ['saveFeatures'],
+      });
+    },
+    onError: (error) => {
+    },
   });
 
   useEffect(() => {
@@ -141,6 +175,11 @@ function Map() {
       {
         if(stairIndex === 4)
         {
+            // TEMPORARY: Saves a dummy data ramp  to back-end
+            mutate(PostFeatureDummyData);
+            // TEMPORARY
+
+
           // Reset stair and turn off reporting
           setReportType(null);
           setStairIndex(0);
@@ -165,6 +204,11 @@ function Map() {
       {
         if(rampIndex === 4)
         {
+          // TEMPORARY: Saves a dummy data ramp  to back-end
+          mutate(PostFeatureDummyData);
+          // TEMPORARY
+
+
           // Reset stair and turn off reporting
           setReportType(null);
           setRampIndex(0);
@@ -189,9 +233,6 @@ function Map() {
       }
     }
   };
-
-  console.log(stairs);
-  console.log(data);
 
   const fetchDirections = () => {
     // Return if start or end positions are not both defined
