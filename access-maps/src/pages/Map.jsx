@@ -195,8 +195,14 @@ function Map() {
   }
 
 	const handleReportTypeChange = (type) => {
+		if(reportType == null){
+			setCenter(clemson);
+
+			//draw circle
+		}
 		// Update reportType state in the Map component
 		setReportType(type);
+		console.log("setting type");
 
 		var label = document.getElementById("report_label");
 		if(type === "Ramp"){
@@ -338,7 +344,10 @@ function Map() {
 			{endPos && !directions && <Chip label="End" variant="outlined" style={{ marginRight: '5px', backgroundColor: 'lightgreen' }} onDelete={handleEndDeleteMarker} />}
 
 			//report has an implicit outer div
-			<Report onReportTypeChange={handleReportTypeChange} onReportActionClicked={handleReportTypeAction}/>
+			<Report
+				onReportTypeChange={handleReportTypeChange}
+				onReportActionClicked={handleReportTypeAction}
+			/>
 			</div>
 		</div>
 
