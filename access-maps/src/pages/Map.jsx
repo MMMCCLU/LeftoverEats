@@ -280,8 +280,44 @@ function Map() {
     // Set Marker elevator
   };
 
-  //const dbMarkers = useMemo(() => generateMarkers(data), [data]);
-  const dbMarkers = generateMarkers(data);
+
+  const dbMarkers = data.map(item =>{
+    
+    if(item.featureType == "elevator"){
+      
+      return <Marker 
+        key={item.featureId}
+        position={{lat: item.coordinates[0].latitude, lng: item.coordinates[0].longitude}}
+        icon={{url: "https://upload.wikimedia.org/wikipedia/commons/7/73/Aiga_elevator.png", scaledSize: new window.google.maps.Size(50, 80)}}
+      />
+    }
+
+    else if(item.featureType == "stairs"){
+      const stairCoords = item.coordinates.map(coords=>{
+        return {lat: coords.latitude, lng: coords.longitude}
+      })
+      
+      return <Polygon 
+        key={item.featureId}
+        path={stairCoords}
+        options={stairHazard}
+      />
+    }
+    else if(item.featureType == "ramp"){
+      const stairCoords = item.coordinates.map(coords=>{
+        return {lat: coords.latitude, lng: coords.longitude}
+      })
+      
+      return <Polygon 
+        key={item.featureId}
+        path={stairCoords}
+        options={stairHazard}
+      /> 
+    }
+  })
+
+  
+
 
   return (
     <div>
@@ -312,7 +348,9 @@ function Map() {
       >
         {startPos && !directions && <Marker position={startPos}></Marker> }
         {endPos && !directions && <Marker position={endPos}></Marker>}
-        {/* {dbMarkers.map(aPoint => <Marker key={aPoint.lat} pos={aPoint} />)} */}
+
+        {dbMarkers}
+
         {elevatorPos && <Marker 
         position={elevatorPos} 
           icon={{url: "https://upload.wikimedia.org/wikipedia/commons/7/73/Aiga_elevator.png", scaledSize: new window.google.maps.Size(50, 80)}}></Marker>}
@@ -355,19 +393,6 @@ function Map() {
   );
 };
 
-const generateMarkers = (markerData) => {
-  const _markers = [];
-  // markerData.array.map(element => {
-  //   if (element.featureType == 'elevator'){
-  //     _markers.push({
-  //       lat: element.latitude,
-  //       lng: element.longitude,
-  //       //urlpng: "https://upload.wikimedia.org/wikipedia/commons/7/73/Aiga_elevator.png",
-  //     });
-  //   }
-  // });
-  
-  return _markers;
-}
+
 
 export default Map;
