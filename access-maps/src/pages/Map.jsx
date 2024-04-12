@@ -79,8 +79,6 @@ function Map() {
   const [startPos, setStartMarkerPosition] = useState();
   const [endPos, setEndMarkerPosition] = useState();
   const [getDirections, setGetDirections] = useState(false);
-  const [polygons, setPolygons] = useState(require("../coordinates/polygons.json"));
-  const [elevators, setElevators] = useState(require("../coordinates/elevators.json"));
   const [elevatorPos, setElevatorPosition] = useState();
   const [stairs, setStairs] = useState([]);
   const [stairIndex, setStairIndex] = useState(0);
@@ -168,8 +166,8 @@ function Map() {
         if(reportMode === "Elevator")
         {
           setElevatorPosition({
-            lat: event.latLng.lat(),
-            lng: event.latLng.lng(),
+            latitude: event.latLng.lat(),
+            longitude: event.latLng.lng(),
           });
         }
         else if(reportMode === "Stair" && stairIndex < reportPolygonLimit)
@@ -295,20 +293,34 @@ function Map() {
           featureType: "ramp",
           coordinates: ramp
         }
+
+        //INSERT ramp to database
         mutate(rampFeatureToBackend);
-        console.log("RAMP SET: ", rampFeatureToBackend);
-        console.log("RAMP COMPARE: ", PostFeatureDummyData);
-        //INSERT polygon to database
         setRampSet(true);
         setRamp([]);
         setRampIndex(0);
         validReport = true;
       } else if (reportType === "Stair" && stairIndex >= 4) {
+        const stairsFeatureToBackend = {
+          featureType: "stairs",
+          coordinates: stairs
+        }
+
         //INSERT stair coord to database
+        mutate(stairsFeatureToBackend)
         setStairsSet(true);
+        setStairs([]);
+        setStairIndex(0);
         validReport = true;
       } else if (reportType === "Elevator" && elevatorPos != null) {
+        const elevatorFeatureToBackend = {
+          featureType: "elevator",
+          coordinates: [elevatorPos]
+        }
+
         //INSERT Elevator coord to database
+        mutate(elevatorFeatureToBackend);
+        setElevatorPosition();
         validReport = true;
       }
       if (validReport) {
@@ -391,7 +403,7 @@ function Map() {
         />
         </div>
         <AccessibilityRouter
-          polygons={polygons}
+          polygons={dbMarkers}
           startPos={startPos}
           endPos={endPos}
           getDirections={getDirections}
