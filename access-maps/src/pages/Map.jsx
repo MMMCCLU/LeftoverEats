@@ -5,6 +5,9 @@ import Report from "../components/Report";
 import AccessibilityRouter from '../components/AccessibilityRouter';
 import { Chip, Button } from "@mui/material";
 import { useParams } from 'react-router-dom';
+import { useQuery, useMutation } from '@tanstack/react-query';
+import { queryClient } from '../util/http';
+import { fetchMapFeatures, saveMapFeature } from '../util/features';
 
 const GOOGLE_MAPS_API_KEY = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
 const libraries = ['places'];
@@ -16,6 +19,27 @@ const mapContainerStyle = {
 const clemson = { lat: 34.6770, lng: -82.8360 };  
 const greenville = { lat: 34.8526, lng: -82.3940};
 
+const PostFeatureDummyData = {
+  featureType: "ramp",
+  coordinates: [
+    {
+      latitude: 54.6772208204604,
+      longitude: -62.8370558471691
+    },
+    {
+      latitude: 54.6771733964104,
+      longitude: -62.8370588646541
+    },
+    {
+      latitude: 54.6771971084388,
+      longitude: -62.8373559192956
+    },
+    {
+      latitude: 54.6772537820768,
+      longitude: -62.8373371163081
+    }
+  ]
+};
 
 const stairHazard = {
 	strokeOpacity:0.9,
@@ -64,6 +88,22 @@ function Map() {
   const [rampSet, setRampSet] = useState(false);
   const [center, setCenter] = useState({ lat: 34.5034, lng: -82.6501 });
   const [reportType, setReportType] = useState(null);
+
+  const { data = [], error, isLoading } = useQuery({
+    queryKey: ['features'],
+    queryFn: fetchMapFeatures,
+  });
+
+  const { mutate, isPending, isSaveError, saveError } = useMutation({
+    mutationFn: saveMapFeature,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ['saveFeatures'],
+      });
+    },
+    onError: (error) => {
+    },
+  });
 
   useEffect(() => {
     // Set Google Maps Center based on mapName
@@ -135,6 +175,11 @@ function Map() {
       {
         if(stairIndex === 4)
         {
+            // TEMPORARY: Saves a dummy data ramp  to back-end
+            mutate(PostFeatureDummyData);
+            // TEMPORARY
+
+
           // Reset stair and turn off reporting
           setReportType(null);
           setStairIndex(0);
@@ -159,6 +204,11 @@ function Map() {
       {
         if(rampIndex === 4)
         {
+          // TEMPORARY: Saves a dummy data ramp  to back-end
+          mutate(PostFeatureDummyData);
+          // TEMPORARY
+
+
           // Reset stair and turn off reporting
           setReportType(null);
           setRampIndex(0);
@@ -183,8 +233,6 @@ function Map() {
       }
     }
   };
-
-  console.log(stairs);
 
   const fetchDirections = () => {
     setGetDirections(true);
@@ -216,6 +264,45 @@ function Map() {
 
     // Set Marker elevator
   };
+
+
+  const dbMarkers = data.map(item =>{
+    
+    if(item.featureType === "elevator"){
+      
+      return <Marker 
+        key={item.featureId}
+        position={{lat: item.coordinates[0].latitude, lng: item.coordinates[0].longitude}}
+        icon={{url: "https://upload.wikimedia.org/wikipedia/commons/7/73/Aiga_elevator.png", scaledSize: new window.google.maps.Size(50, 80)}}
+      />
+    }
+
+    else if(item.featureType === "stairs"){
+      const stairCoords = item.coordinates.map(coords=>{
+        return {lat: coords.latitude, lng: coords.longitude}
+      })
+      
+      return <Polygon 
+        key={item.featureId}
+        path={stairCoords}
+        options={stairHazard}
+      />
+    }
+    else if(item.featureType === "ramp"){
+      const rampCoords = item.coordinates.map(coords=>{
+        return {lat: coords.latitude, lng: coords.longitude}
+      })
+      
+      return <Polygon 
+        key={item.featureId}
+        path={rampCoords}
+        options={rampPath}
+      /> 
+    }
+  })
+
+  
+
 
   return (
     <div>
@@ -252,39 +339,12 @@ function Map() {
           getDirections={getDirections}
         >
         </AccessibilityRouter>
-        {elevatorPos && <Marker 
-        position={elevatorPos} 
-          icon={{url: "https://upload.wikimedia.org/wikipedia/commons/7/73/Aiga_elevator.png", scaledSize: new window.google.maps.Size(50, 80)}}></Marker>}
-        {stairs.map((position, index) => (
-                position && (
-                    <Marker key={index} position={position} icon="https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png" />
-                )
-            ))}
-        {stairsSet && <Polygon
-          paths={stairs}
-          options={stairHazard}
-        />}
-        {ramp.map((position, index) => (
-                position && (
-                    <Marker key={index} position={position} icon="https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png" />
-                )
-            ))}
-        {rampSet && <Polygon
-          paths={ramp}
-          options={rampPath}
-        />}
-      {startPos && elevators.coords.map(mark => <Marker key={mark.lat} position={mark} icon={{url: "https://upload.wikimedia.org/wikipedia/commons/7/73/Aiga_elevator.png", scaledSize: new window.google.maps.Size(50, 80)}}/>)}
-
-      {startPos && polygons.polygons.map((polygonCoordinates, index) => (
-        <Polygon
-          key={index}
-          paths={polygonCoordinates}
-          options={stairHazard}
-        />))
-      }
+        {!isLoading && dbMarkers}
       </GoogleMap>
     </div>
   );
 };
+
+
 
 export default Map;
