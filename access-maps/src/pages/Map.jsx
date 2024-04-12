@@ -283,7 +283,7 @@ function Map() {
 
   const dbMarkers = data.map(item =>{
     
-    if(item.featureType == "elevator"){
+    if(item.featureType === "elevator"){
       
       return <Marker 
         key={item.featureId}
@@ -292,7 +292,7 @@ function Map() {
       />
     }
 
-    else if(item.featureType == "stairs"){
+    else if(item.featureType === "stairs"){
       const stairCoords = item.coordinates.map(coords=>{
         return {lat: coords.latitude, lng: coords.longitude}
       })
@@ -303,15 +303,15 @@ function Map() {
         options={stairHazard}
       />
     }
-    else if(item.featureType == "ramp"){
-      const stairCoords = item.coordinates.map(coords=>{
+    else if(item.featureType === "ramp"){
+      const rampCoords = item.coordinates.map(coords=>{
         return {lat: coords.latitude, lng: coords.longitude}
       })
       
       return <Polygon 
         key={item.featureId}
-        path={stairCoords}
-        options={stairHazard}
+        path={rampCoords}
+        options={rampPath}
       /> 
     }
   })
@@ -349,45 +349,8 @@ function Map() {
         {startPos && !directions && <Marker position={startPos}></Marker> }
         {endPos && !directions && <Marker position={endPos}></Marker>}
 
-        {dbMarkers}
+        {!isLoading && dbMarkers}
 
-        {elevatorPos && <Marker 
-        position={elevatorPos} 
-          icon={{url: "https://upload.wikimedia.org/wikipedia/commons/7/73/Aiga_elevator.png", scaledSize: new window.google.maps.Size(50, 80)}}></Marker>}
-        {stairs.map((position, index) => (
-                position && (
-                    <Marker key={index} position={position} icon="https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png" />
-                )
-            ))}
-        {stairsSet && <Polygon
-          paths={stairs}
-          options={stairHazard}
-        />}
-        {ramp.map((position, index) => (
-                position && (
-                    <Marker key={index} position={position} icon="https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png" />
-                )
-            ))}
-        {rampSet && <Polygon
-          paths={ramp}
-          options={rampPath}
-        />}
-        
-        {directions && (
-          <DirectionsRenderer
-            directions={directions}
-        />
-        )
-        }
-  {elevatorCoords.coords.map(mark => <Marker key={mark.lat} position={mark} icon={{url: "https://upload.wikimedia.org/wikipedia/commons/7/73/Aiga_elevator.png", scaledSize: new window.google.maps.Size(50, 80)}}/>)}
-
-	{polygonCoords.polygons.map((polygonCoordinates, index) => (
-		<Polygon
-			key={index}
-			paths={polygonCoordinates}
-			options={stairHazard}
-		/>))
-	}
       </GoogleMap>
     </div>
   );
