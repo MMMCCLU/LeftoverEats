@@ -141,83 +141,69 @@ function Map() {
   }
 
   const handleMapClick = (reportMode) => (event) => {
-	console.log('Clicked coordinates:', event.latLng.lat(), event.latLng.lng());
-    // If map was clicked without being in "report" mode
-    if(!reportMode)
-    {
-      if(!startPos)
+    console.log('Clicked coordinates:', event.latLng.lat(), event.latLng.lng());
+      // If map was clicked without being in "report" mode
+      if(!reportMode)
       {
-        setStartMarkerPosition({
-          lat: event.latLng.lat(),
-          lng: event.latLng.lng(),
-        });
-      }
-      else if(!endPos)
-      {
-        setEndMarkerPosition({
-          lat: event.latLng.lat(),
-          lng: event.latLng.lng(),
-        });
-      }
-    }
-
-    // Map click should create a report
-    else
-    {
-		const label = document.getElementById("report_label");
-      if(reportMode === "Elevator")
-      {
-        setElevatorPosition({
-          lat: event.latLng.lat(),
-          lng: event.latLng.lng(),
-        });
-      }
-      else if(reportMode === "Stair")
-      {
-        if(stairIndex === 4)
+        if(!startPos)
         {
-            // TEMPORARY: Saves a dummy data ramp  to back-end
-            mutate(PostFeatureDummyData);
-            // TEMPORARY
-
-
-          // Reset stair and turn off reporting
-          setReportType(null);
-          setStairIndex(0);
-          setStairsSet(true);
+          setStartMarkerPosition({
+            lat: event.latLng.lat(),
+            lng: event.latLng.lng(),
+          });
         }
-        else
+        else if(!endPos)
         {
-          setStairs(stairs => {
-            const updatedStairs = [...stairs];
-            updatedStairs[stairIndex] = {lat: event.latLng.lat(), lng: event.latLng.lng()};
-            return updatedStairs;
+          setEndMarkerPosition({
+            lat: event.latLng.lat(),
+            lng: event.latLng.lng(),
           });
-
-		// Increment stair index
-		//for what ever reason the index only updates after method termination
-		//so a temp variable is used
-		var newIndex = stairIndex + 1;
-		setStairIndex(newIndex);
-		label.textContent = reportingStairsCue + ` Markers left (${reportPolygonLimit - newIndex})`;
+        }
       }
-      else if(reportMode === "Ramp" && rampIndex < reportPolygonLimit)
+  
+      // Map click should create a report
+      else
       {
-          setRamp(ramp => {
-            const updatedRamp = [...ramp];
-            updatedRamp[rampIndex] = {lat: event.latLng.lat(), lng: event.latLng.lng()};
-            return updatedRamp;
+      const label = document.getElementById("report_label");
+        if(reportMode === "Elevator")
+        {
+          setElevatorPosition({
+            lat: event.latLng.lat(),
+            lng: event.latLng.lng(),
           });
-
-		// Increment ramp index
-		//for what ever reason the index only updates after method termination
-		//so a temp variable is used
-		var newIndex = rampIndex + 1;
-		setRampIndex(newIndex);
-		label.textContent = reportingRampsCue + ` Markers left (${reportPolygonLimit - newIndex})`;
+        }
+        else if(reportMode === "Stair" && stairIndex < reportPolygonLimit)
+        {
+            setStairs(stairs => {
+              const updatedStairs = [...stairs];
+              updatedStairs[stairIndex] = {lat: event.latLng.lat(), lng: event.latLng.lng()};
+              return updatedStairs;
+            });
+  
+      // Increment stair index
+      //for what ever reason the index only updates after method termination
+      //so a temp variable is used
+      var newIndex = stairIndex + 1;
+      setStairIndex(newIndex);
+      label.textContent = reportingStairsCue + ` Markers left (${reportPolygonLimit - newIndex})`;
+        }
+        else if(reportMode === "Ramp" && rampIndex < reportPolygonLimit)
+        {
+            setRamp(ramp => {
+              const updatedRamp = [...ramp];
+              updatedRamp[rampIndex] = {lat: event.latLng.lat(), lng: event.latLng.lng()};
+              return updatedRamp;
+            });
+  
+      // Increment ramp index
+      //for what ever reason the index only updates after method termination
+      //so a temp variable is used
+      var newIndex = rampIndex + 1;
+      setRampIndex(newIndex);
+      label.textContent = reportingRampsCue + ` Markers left (${reportPolygonLimit - newIndex})`;
+        }
       }
-    }
-  };
+    };
 
   const fetchDirections = () => {
     setGetDirections(true);
@@ -354,6 +340,41 @@ function Map() {
 		}
 	}
 
+  const dbMarkers = data.map(item =>{
+    
+    if(item.featureType === "elevator"){
+      
+      return <Marker 
+        key={item.featureId}
+        position={{lat: item.coordinates[0].latitude, lng: item.coordinates[0].longitude}}
+        icon={{url: "https://upload.wikimedia.org/wikipedia/commons/7/73/Aiga_elevator.png", scaledSize: new window.google.maps.Size(50, 80)}}
+      />
+    }
+
+    else if(item.featureType === "stairs"){
+      const stairCoords = item.coordinates.map(coords=>{
+        return {lat: coords.latitude, lng: coords.longitude}
+      })
+      
+      return <Polygon 
+        key={item.featureId}
+        path={stairCoords}
+        options={stairHazard}
+      />
+    }
+    else if(item.featureType === "ramp"){
+      const rampCoords = item.coordinates.map(coords=>{
+        return {lat: coords.latitude, lng: coords.longitude}
+      })
+      
+      return <Polygon 
+        key={item.featureId}
+        path={rampCoords}
+        options={rampPath}
+      /> 
+    }
+  })
+
   return (
     <div>
       <GoogleMap
@@ -378,7 +399,7 @@ function Map() {
           </Button>}
           {startPos && !getDirections && <Chip label="Start" variant="outlined" style={{ marginRight: '5px', backgroundColor: 'pink' }} onDelete={handleStartDeleteMarker} />}
           {endPos && !getDirections && <Chip label="End" variant="outlined" style={{ marginRight: '5px', backgroundColor: 'lightgreen' }} onDelete={handleEndDeleteMarker} />}
-          //report has an implicit outer div
+          {/* report has an implicit outer div */}
         <Report
           onReportTypeChange={handleReportTypeChange}
           onReportActionClicked={handleReportTypeAction}
@@ -392,6 +413,27 @@ function Map() {
         >
         </AccessibilityRouter>
         {!isLoading && dbMarkers}
+        {elevatorPos && <Marker
+        position={elevatorPos}
+          icon={{url: elevatorDropperIcon, scaledSize: new window.google.maps.Size(50, 80)}}></Marker>}
+        {stairs.map((position, index) => (
+                position && (
+                    <Marker key={index} position={position} icon={{url: stairDropperIcon, scaledSize: new window.google.maps.Size(50, 80)}} />
+                )
+            ))}
+        {stairsSet && <Polygon
+          paths={stairs}
+          options={stairHazard}
+        />}
+        {ramp.map((position, index) => (
+                position && (
+                    <Marker key={index} position={position} icon={reportIcon} />
+                )
+            ))}
+        {rampSet && <Polygon
+          paths={ramp}
+          options={rampPath}
+        />}
       </GoogleMap>
     </div>
   );
