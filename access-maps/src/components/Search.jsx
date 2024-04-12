@@ -45,6 +45,8 @@ function Search()
             <Button onClick={(handleSearch)} style={{ marginLeft: 8 }}>
                 <SearchIcon/>
             </Button>
+
+			<h2 id="report_label" style={{alignItems: 'right' }} ></h2>
         </div>
     );
 };
