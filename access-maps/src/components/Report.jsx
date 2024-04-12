@@ -14,22 +14,12 @@ const buttonProps = {
 	backgroundColor: 'white',
 };
 
-const cancelButton = {
+const reportActionButton = {
 	...buttonProps,
 	width: "75px",
 	height: "75px",
-}
-
-const undoButton = {
-	...buttonProps,
-	width: "75px",
-	height: "75px",
-}
-
-const confirmButton = {
-	...buttonProps,
-	width: "75px",
-	height: "75px",
+	marginLeft: "10px",
+	marginRight: "10px",
 }
 
 const Report = (props) => {
@@ -68,22 +58,25 @@ const Report = (props) => {
         </div>
     );
 
-    return (
-	<div>
+return (
+	<div style={{display: "flex", marginLeft:"auto"}}>
+		<div style={{marginLeft:"auto"}}>
+			<Button onClick={toggleReportDrawer(true)} style={buttonProps}> REPORT </Button>
+		</div>
+
 		<div id="hidden_div" style={{visibility: 'hidden'}}>
-			<Button onClick={() => handleReportAction("Cancel")} style={cancelButton}>
+			<Button onClick={() => handleReportAction("Cancel")} style={reportActionButton}>
 				<img src={cancelIcon} height="200%" width="200%"/>
 			</Button>
-			<Button onClick={() => handleReportAction("Undo")} style={undoButton}>
+			<Button onClick={() => handleReportAction("Undo")} style={reportActionButton}>
 				<img src={undoIcon} height="150%" width="150%"/>
 			</Button>
-			<Button onClick={() => handleReportAction("Confirm")} style={confirmButton}>
+			<Button onClick={() => handleReportAction("Confirm")} style={reportActionButton}>
 				<img src={confirmIcon} height="140%" width="140%"/>
 			</Button>
 		</div>
-		<div style={{flex: "1", marginleft: "auto"}}>
-			<Button onClick={toggleReportDrawer(true)} style={buttonProps}> REPORT </Button>
-		</div>
+
+
 		<Drawer
 			anchor="right"
 			open={open}
