@@ -3,7 +3,7 @@ import React from 'react';
 import { GoogleMap, useLoadScript, Marker, DirectionsRenderer , Polygon} from '@react-google-maps/api';
 import Report from "../components/Report";
 import AccessibilityRouter from '../components/AccessibilityRouter';
-import { Chip, Button } from "@mui/material";
+import { Chip, Button, Drawer } from "@mui/material";
 import { useParams } from 'react-router-dom';
 import elevatorIcon from "../images/Elevator.svg"
 import elevatorDropperIcon from "../images/ElevatorPlaceMarker.svg"
@@ -73,6 +73,12 @@ const rampPath = {
 	fillColor: "#00FF00",
 };
 
+const legendItems = [
+  { icon: "https://upload.wikimedia.org/wikipedia/commons/7/73/Aiga_elevator.png", label: "Elevator"},
+  { color: "#FFFF00", label: "Stairs"},
+  { color: "#03F5D4", label: "Ramp"},
+];
+
 
 function Map() {
   const { mapName } = useParams();
@@ -88,6 +94,8 @@ function Map() {
   const [rampSet, setRampSet] = useState(false);
   const [center, setCenter] = useState({ lat: 34.5034, lng: -82.6501 });
   const [reportType, setReportType] = useState(null);
+  const [open, setOpen] = useState(false);
+
 
   const { data = [], error, isLoading } = useQuery({
     queryKey: ['features'],
@@ -401,6 +409,31 @@ function Map() {
           onReportTypeChange={handleReportTypeChange}
           onReportActionClicked={handleReportTypeAction}
         />
+        <Button onClick={() => setOpen(true)}
+                  style={{
+                    border: '2px solid black',
+                    padding: '10px 20px', // Increase padding to make the button bigger
+                    fontSize: '1.2rem', // Increase font size
+                    backgroundColor: 'white',
+        }}
+        >LEGEND</Button>
+          <Drawer 
+            anchor="right"
+            open={open}
+            onClose={() => setOpen(false)} 
+            BackdropProps={{ invisible: true }}
+            PaperProps={{ sx: { height: "33%" } }}>
+            <div id="legend" style={{ padding: 10 }}>
+            <h3>Legend</h3>
+            {legendItems.map((item, index) => (
+              <div key={index} style={{ display: 'flex', alignItems: 'center', marginBottom: 5}}>
+                {item.icon && <img src={item.icon} alt={item.label} style={{ width: 20, height: 20, backgroundColor: item.color, marginRight: 5}} />}
+                {item.color && <div style={{width: 20, height: 20, backgroundColor: item.color, marginRight: 5}}></div>}
+                <span>{item.label}</span>
+              </div>
+           ))}
+          </div>
+        </Drawer>
         </div>
         <AccessibilityRouter
           polygons={dbMarkers}
