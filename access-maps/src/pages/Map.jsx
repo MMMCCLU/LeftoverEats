@@ -294,9 +294,9 @@ function Map() {
         }
 
         //INSERT ramp to database
-        //mutate(rampFeatureToBackend);
+        mutate(rampFeatureToBackend);
         setRampSet(true);
-        setRamp(rampFeatureToBackend.coordinates);
+        setRamp([]);
         setRampIndex(0);
         validReport = true;
       } else if (reportType === "Stair" && stairIndex >= MIN_REPORT_LIMIT) {
@@ -306,9 +306,9 @@ function Map() {
         }
 
         //INSERT stair coord to database
-        //mutate(stairsFeatureToBackend)
+        mutate(stairsFeatureToBackend)
         setStairsSet(true);
-        setStairs(stairsFeatureToBackend.coordinates);
+        setStairs([]);
         setStairIndex(0);
         validReport = true;
       } else if (reportType === "Elevator" && elevatorPos != null) {
