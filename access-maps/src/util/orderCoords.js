@@ -2,21 +2,26 @@ import GrahamScan from '@lucio/graham-scan';
 
 //function to reorder coordinates
 export function orderCoordsForPolygon(coordArray){
-	console.log("Passed " + coordArray);
-
-	//a 2D array. An array of an array of points
-	var rawPoints = [];
+	let grahamScan = new GrahamScan();
 	console.log(coordArray.length);
-	for (let index = 0; index < coordArray.length; ++index){
+
+	//Needs a 2D array. An array of an array of points
+	for(let index = 0; index < coordArray.length; ++index){
 		const element = coordArray[index];
 		console.log("Element " + element.latitude + ", " + element.longitude);
-		var pair = [element.latitude, element.longitude];
-		rawPoints.push(pair);
+		grahamScan.addPoint([element.latitude, element.longitude]);
 	}
-	console.log("raw " + rawPoints);
-	const grahamScan = new GrahamScan();
-	grahamScan.setPoints(rawPoints);
-	const hull = grahamScan.getHull();
-	//console.log("Graham " + hull);
-	return coordArray;
+
+	let hull = grahamScan.getHull();
+	console.log("length of hull " + hull.length);
+	hull.push(hull[0]);
+
+	//convert hull to json objects
+	console.log("After ");
+	//hull length can be different than original length
+	for(let m = 0; m < hull.length; ++m){
+		hull[m] = {latitude: hull[m][0], longitude: hull[m][1]}
+	}
+	console.log(hull);
+	return hull;
 }
