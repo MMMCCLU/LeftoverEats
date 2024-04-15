@@ -127,7 +127,6 @@ function Map() {
   const options = useMemo(
     () => ({
       mapId: "a4620df1fed5e14e",
-      disableDefaultUI: true,
       clickableIcons: false,
     }),
     []
