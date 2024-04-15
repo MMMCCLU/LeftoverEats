@@ -11,6 +11,7 @@ import stairDropperIcon from "../images/StairsPlaceMarker.svg"
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { queryClient } from '../util/http';
 import { fetchMapFeatures, saveMapFeature } from '../util/features';
+import { grahamScan } from '../util/orderCoords.js'
 
 const GOOGLE_MAPS_API_KEY = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
 const libraries = ['places'];
@@ -45,7 +46,8 @@ const PostFeatureDummyData = {
   ]
 };
 const reportIcon = "https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png";
-const reportPolygonLimit = 10;
+const REPORT_POLYGON_LIMIT = 10;
+const MIN_REPORT_LIMIT = 4;
 const reportingStairsCue = "Reporting: Stairs. Place markers outlining the hazard."
 const reportingRampsCue = "Reporting: Ramps. Place markers outlining the hazard."
 const reportingElevCue = "Reporting: Elevators. Place the marker where the elevator is."
@@ -72,7 +74,6 @@ const rampPath = {
 	strokeColor: "#000000",
 	fillColor: "#00FF00",
 };
-
 
 function Map() {
   const { mapName } = useParams();
@@ -170,7 +171,7 @@ function Map() {
             longitude: event.latLng.lng(),
           });
         }
-        else if(reportMode === "Stair" && stairIndex < reportPolygonLimit)
+        else if(reportMode === "Stair" && stairIndex < REPORT_POLYGON_LIMIT)
         {
             setStairs(stairs => {
               const updatedStairs = [...stairs];
@@ -183,9 +184,9 @@ function Map() {
           //so a temp variable is used
           var newIndex = stairIndex + 1;
           setStairIndex(newIndex);
-          label.textContent = reportingStairsCue + ` Markers left (${reportPolygonLimit - newIndex})`;
+          label.textContent = reportingStairsCue + ` Markers left (${REPORT_POLYGON_LIMIT - newIndex})`;
         }
-        else if(reportMode === "Ramp" && rampIndex < reportPolygonLimit)
+        else if(reportMode === "Ramp" && rampIndex < REPORT_POLYGON_LIMIT)
         {
             const updatedRamp = [...ramp];
             updatedRamp[rampIndex] = {latitude: event.latLng.lat(), longitude: event.latLng.lng()};
@@ -198,7 +199,7 @@ function Map() {
           //so a temp variable is used
           var newIndex = rampIndex + 1;
           setRampIndex(newIndex);
-          label.textContent = reportingRampsCue + ` Markers left (${reportPolygonLimit - newIndex})`;
+          label.textContent = reportingRampsCue + ` Markers left (${REPORT_POLYGON_LIMIT - newIndex})`;
         }
       }
     };
@@ -227,7 +228,7 @@ function Map() {
 
 		var label = document.getElementById("report_label");
 		if(type === "Ramp"){
-			label.textContent = reportingRampsCue + ` Markers left (${reportPolygonLimit})`;
+			label.textContent = reportingRampsCue + ` Markers left (${REPORT_POLYGON_LIMIT})`;
 
 			//remove opposing markers if any
 			for (var i = 0; i < stairIndex; ++i) stairs[i] = null;
@@ -235,7 +236,7 @@ function Map() {
 			setElevatorPosition(null);
 		}
 		else if(type === "Stair"){
-			label.textContent = reportingStairsCue + ` Markers left (${reportPolygonLimit})`;
+			label.textContent = reportingStairsCue + ` Markers left (${REPORT_POLYGON_LIMIT})`;
 
 			//remove opposing markers if any
 			for (var i = 0; i < rampIndex; ++i) ramp[i] = null;
@@ -260,8 +261,8 @@ function Map() {
       // Reset all state variables
       setReportType(null);
       setElevatorPosition(null);
-      setRamp(Array(reportPolygonLimit).fill(null));
-      setStairs(Array(reportPolygonLimit).fill(null));
+      setRamp(Array(REPORT_POLYGON_LIMIT).fill(null));
+      setStairs(Array(REPORT_POLYGON_LIMIT).fill(null));
       setRampIndex(0);
       setStairIndex(0);
       label.textContent = "";
@@ -274,7 +275,7 @@ function Map() {
           return updatedRamp;
         });
         setRampIndex(prevIndex => prevIndex - 1);
-        label.textContent = reportingRampsCue + ` Markers left (${reportPolygonLimit - (rampIndex - 1)})`;
+        label.textContent = reportingRampsCue + ` Markers left (${REPORT_POLYGON_LIMIT - (rampIndex - 1)})`;
       } else if (reportType === "Stair" && stairIndex >= 1) {
         setStairs(prevStairs => {
           const updatedStairs = [...prevStairs];
@@ -282,32 +283,33 @@ function Map() {
           return updatedStairs;
         });
         setStairIndex(prevIndex => prevIndex - 1);
-        label.textContent = reportingStairsCue + ` Markers left (${reportPolygonLimit - (stairIndex - 1)})`;
+        label.textContent = reportingStairsCue + ` Markers left (${REPORT_POLYGON_LIMIT - (stairIndex - 1)})`;
       } else if (reportType === "Elevator") {
         setElevatorPosition(null);
       }
     } else if (type === "Confirm") {
       var validReport = false;
-      if (reportType === "Ramp" && rampIndex >= 4) {
+      if (reportType === "Ramp" && rampIndex >= MIN_REPORT_LIMIT) {
         const rampFeatureToBackend = {
           featureType: "ramp",
-          coordinates: ramp
+          coordinates: grahamScan(ramp)
         }
 
         //INSERT ramp to database
-        mutate(rampFeatureToBackend);
+        //mutate(rampFeatureToBackend);
         setRampSet(true);
         setRamp([]);
         setRampIndex(0);
         validReport = true;
-      } else if (reportType === "Stair" && stairIndex >= 4) {
+      } else if (reportType === "Stair" && stairIndex >= MIN_REPORT_LIMIT) {
         const stairsFeatureToBackend = {
           featureType: "stairs",
-          coordinates: stairs
+          coordinates: grahamScan(stairs)
         }
+	 //const poly = new window.google.maps.Polygon({ map: document.getElementById("DaMap"), path: stairsFeatureToBackend.coordinates, strokeColor: "#FF0000", strokeOpacity: 0.8, strokeWeight: 2, fillColor: "#FF0000", fillOpacity: 0.35 });
 
         //INSERT stair coord to database
-        mutate(stairsFeatureToBackend)
+        //mutate(stairsFeatureToBackend)
         setStairsSet(true);
         setStairs([]);
         setStairIndex(0);
@@ -353,7 +355,7 @@ function Map() {
         return {lat: coords.latitude, lng: coords.longitude}
       })
       
-      return <Polygon 
+      return <Polygon
         key={item.featureId}
         path={stairCoords}
         options={stairHazard}
@@ -364,7 +366,7 @@ function Map() {
         return {lat: coords.latitude, lng: coords.longitude}
       })
       
-      return <Polygon 
+      return <Polygon
         key={item.featureId}
         path={rampCoords}
         options={rampPath}
@@ -380,6 +382,7 @@ function Map() {
         center={center}
         options={options}
         onClick={handleMapClick(reportType)}
+		id = {"DaMap"}
       >
 		    <div style={{display: "flex", justifyContent: "space-between", alignItems: "center"}}>
           {startPos && endPos && <Button
