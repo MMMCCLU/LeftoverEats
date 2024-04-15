@@ -193,7 +193,6 @@ function Map() {
             setRamp(updatedRamp);
 
             console.log("RAMP CLICK: ", ramp);
-  
           // Increment ramp index
           //for what ever reason the index only updates after method termination
           //so a temp variable is used
@@ -261,8 +260,8 @@ function Map() {
       // Reset all state variables
       setReportType(null);
       setElevatorPosition(null);
-      setRamp(Array(REPORT_POLYGON_LIMIT).fill(null));
-      setStairs(Array(REPORT_POLYGON_LIMIT).fill(null));
+      setRamp([]);
+      setStairs([]);
       setRampIndex(0);
       setStairIndex(0);
       label.textContent = "";
@@ -298,7 +297,7 @@ function Map() {
         //INSERT ramp to database
         //mutate(rampFeatureToBackend);
         setRampSet(true);
-        setRamp([]);
+        setRamp(rampFeatureToBackend.coordinates);
         setRampIndex(0);
         validReport = true;
       } else if (reportType === "Stair" && stairIndex >= MIN_REPORT_LIMIT) {
@@ -306,12 +305,11 @@ function Map() {
           featureType: "stairs",
           coordinates: grahamScan(stairs)
         }
-	 //const poly = new window.google.maps.Polygon({ map: document.getElementById("DaMap"), path: stairsFeatureToBackend.coordinates, strokeColor: "#FF0000", strokeOpacity: 0.8, strokeWeight: 2, fillColor: "#FF0000", fillOpacity: 0.35 });
 
         //INSERT stair coord to database
         //mutate(stairsFeatureToBackend)
         setStairsSet(true);
-        setStairs([]);
+        setStairs(stairsFeatureToBackend.coordinates);
         setStairIndex(0);
         validReport = true;
       } else if (reportType === "Elevator" && elevatorPos != null) {
@@ -325,6 +323,7 @@ function Map() {
         setElevatorPosition();
         validReport = true;
       }
+
       if (validReport) {
         setReportType(null);
         document.getElementById("hidden_div").style.visibility = "hidden";
@@ -439,9 +438,4 @@ function Map() {
   );
 };
 
-
-
 export default Map;
-
-//<div style={{ display: 'flex', alignItems: 'left',  justifyContent: 'left'  }}>
-//{elevatorCoords.coords.map(mark => <Marker key={mark.lat} position={mark} icon={{url: "https://upload.wikimedia.org/wikipedia/commons/7/73/Aiga_elevator.png", scaledSize: new window.google.maps.Size(50, 80)}}/>)}
