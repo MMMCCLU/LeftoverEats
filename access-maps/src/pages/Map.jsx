@@ -11,7 +11,7 @@ import stairDropperIcon from "../images/StairsPlaceMarker.svg"
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { queryClient } from '../util/http';
 import { fetchMapFeatures, saveMapFeature } from '../util/features';
-import { grahamScan } from '../util/orderCoords.js'
+import { orderCoordsForPolygon } from '../util/orderCoords.js'
 
 const GOOGLE_MAPS_API_KEY = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
 const libraries = ['places'];
@@ -192,7 +192,6 @@ function Map() {
             updatedRamp[rampIndex] = {latitude: event.latLng.lat(), longitude: event.latLng.lng()};
             setRamp(updatedRamp);
 
-            console.log("RAMP CLICK: ", ramp);
           // Increment ramp index
           //for what ever reason the index only updates after method termination
           //so a temp variable is used
@@ -291,7 +290,7 @@ function Map() {
       if (reportType === "Ramp" && rampIndex >= MIN_REPORT_LIMIT) {
         const rampFeatureToBackend = {
           featureType: "ramp",
-          coordinates: grahamScan(ramp)
+          coordinates: orderCoordsForPolygon(ramp)
         }
 
         //INSERT ramp to database
@@ -303,7 +302,7 @@ function Map() {
       } else if (reportType === "Stair" && stairIndex >= MIN_REPORT_LIMIT) {
         const stairsFeatureToBackend = {
           featureType: "stairs",
-          coordinates: grahamScan(stairs)
+          coordinates: orderCoordsForPolygon(stairs)
         }
 
         //INSERT stair coord to database

@@ -1,7 +1,7 @@
 import GrahamScan from '@lucio/graham-scan';
 
 //function to reorder coordinates
-export function grahamScan(coordArray){
+export function orderCoordsForPolygon(coordArray){
 	console.log("Passed " + coordArray);
 
 	//a 2D array. An array of an array of points
