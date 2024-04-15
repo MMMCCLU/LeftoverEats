@@ -22,7 +22,7 @@ const mapContainerStyle = {
 //const clemson = { lat: 34.6834, lng: -82.8374 };
 const clemson = { lat: 34.6775, lng: -82.8362};
 const greenville = { lat: 34.8526, lng: -82.3940};
-const testPos = {lat: 34.677692944796476, lng: -82.83357787606501}
+//const testPos = {lat: 34.677692944796476, lng: -82.83357787606501}
 
 const PostFeatureDummyData = {
   featureType: "ramp",
@@ -432,6 +432,8 @@ function Map() {
           paths={ramp}
           options={rampPath}
         />}
+	
+	<Polygon paths={testPath} options={rampPath}/>
       </GoogleMap>
     </div>
   );

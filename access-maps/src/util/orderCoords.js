@@ -13,5 +13,6 @@ export function orderCoordsForPolygon(coordArray){
 	for(let m = 0; m < hull.length; ++m){
 		hull[m] = {latitude: hull[m][0], longitude: hull[m][1]}
 	}
+	console.log(hull);
 	return hull;
 }
