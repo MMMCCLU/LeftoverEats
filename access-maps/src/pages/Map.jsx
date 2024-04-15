@@ -182,7 +182,7 @@ function Map() {
           // Increment stair index
           //for what ever reason the index only updates after method termination
           //so a temp variable is used
-          var newIndex = stairIndex + 1;
+          let newIndex = stairIndex + 1;
           setStairIndex(newIndex);
           label.textContent = reportingStairsCue + ` Markers left (${REPORT_POLYGON_LIMIT - newIndex})`;
         }
@@ -196,7 +196,7 @@ function Map() {
           // Increment ramp index
           //for what ever reason the index only updates after method termination
           //so a temp variable is used
-          var newIndex = rampIndex + 1;
+          let newIndex = rampIndex + 1;
           setRampIndex(newIndex);
           label.textContent = reportingRampsCue + ` Markers left (${REPORT_POLYGON_LIMIT - newIndex})`;
         }
@@ -217,7 +217,7 @@ function Map() {
 
 	const handleReportTypeChange = (type) => {
 		if(reportType == null){
-			setCenter(clemson);
+			//setCenter(clemson);
 
 			//draw circle
 		}
@@ -230,7 +230,7 @@ function Map() {
 			label.textContent = reportingRampsCue + ` Markers left (${REPORT_POLYGON_LIMIT})`;
 
 			//remove opposing markers if any
-			for (var i = 0; i < stairIndex; ++i) stairs[i] = null;
+			for (let i = 0; i < stairIndex; ++i) stairs[i] = null;
 			setStairIndex(0);
 			setElevatorPosition(null);
 		}
@@ -238,7 +238,7 @@ function Map() {
 			label.textContent = reportingStairsCue + ` Markers left (${REPORT_POLYGON_LIMIT})`;
 
 			//remove opposing markers if any
-			for (var i = 0; i < rampIndex; ++i) ramp[i] = null;
+			for (let i = 0; i < rampIndex; ++i) ramp[i] = null;
 			setRampIndex(0);
 			setElevatorPosition(null);
 		}
@@ -246,9 +246,9 @@ function Map() {
 			label.textContent = reportingElevCue;
 
 			//remove opposing markers if any
-			for (var i = 0; i < stairIndex; ++i) stairs[i] = null;
+			for (let i = 0; i < stairIndex; ++i) stairs[i] = null;
 			setStairIndex(0);
-			for (var i = 0; i < rampIndex; ++i) ramp[i] = null;
+			for (let i = 0; i < rampIndex; ++i) ramp[i] = null;
 			setRampIndex(0);
 		}
 	};
