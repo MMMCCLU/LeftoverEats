@@ -12,6 +12,7 @@ import { useQuery, useMutation } from '@tanstack/react-query';
 import { queryClient } from '../util/http';
 import { fetchMapFeatures, saveMapFeature } from '../util/features';
 import { orderCoordsForPolygon } from '../util/orderCoords.js'
+import { Drawer } from '@mui/material'
 
 const GOOGLE_MAPS_API_KEY = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
 const libraries = ['places'];
@@ -23,8 +24,31 @@ const mapContainerStyle = {
 const clemson = { lat: 34.6775, lng: -82.8362};
 const greenville = { lat: 34.8526, lng: -82.3940};
 //const testPos = {lat: 34.677692944796476, lng: -82.83357787606501}
-//
-;
+/*
+const testPath1 = [
+	{lat: 34.677519851852935, lng: -82.83441633108306},
+	{lat: 34.678402151620936, lng: -82.83564478275818},
+	{lat: 34.67854773017918, lng: -82.83663183563252},
+	{lat: 34.67717134085477, lng: -82.83714145532306},
+	{lat: 34.67660666169381, lng: -82.83639580124952},
+	{lat: 34.677519851852935, lng: -82.83441633108306},
+];
+*/
+
+const testPath = [
+	{lat: 34.68046925674206, lng: -82.82640657804087},
+	{lat: 34.680528819457784, lng: -82.82652536481132},
+	{lat: 34.680494273087895, lng: -82.82670499358609},
+	{lat: 34.68040016393814, lng: -82.82666732948815},
+	{lat: 34.68038706012399, lng: -82.8265195703347},
+	{lat: 34.68046925674206, lng: -82.82640657804087},
+]
+
+const legendItems = [
+    { icon: "https://upload.wikimedia.org/wikipedia/commons/7/73/Aiga_elevator.png", label: "Elevator"},
+    { color: "#FFFF00", label: "Stairs"},
+    { color: "#03F5D4", label: "Ramp"},
+  ];
 
 const PostFeatureDummyData = {
   featureType: "ramp",
@@ -78,6 +102,7 @@ const rampPath = {
 };
 
 function Map() {
+  const [open, setOpen] = useState(false);
   const { mapName } = useParams();
   const [startPos, setStartMarkerPosition] = useState();
   const [endPos, setEndMarkerPosition] = useState();
@@ -302,6 +327,7 @@ function Map() {
         setRampIndex(0);
         validReport = true;
       } else if (reportType === "Stair" && stairIndex >= MIN_REPORT_LIMIT) {
+
         const stairsFeatureToBackend = {
           featureType: "stairs",
           coordinates: orderCoordsForPolygon(stairs)
@@ -397,6 +423,34 @@ function Map() {
           >
               GO!
           </Button>}
+
+<Button onClick={() => setOpen(true)}
+                  style={{
+                    border: '2px solid black',
+                    padding: '10px 20px', // Increase padding to make the button bigger
+                    fontSize: '1.2rem', // Increase font size
+                    backgroundColor: 'white',
+        }}
+        >LEGEND</Button>
+          <Drawer
+            anchor="right"
+            open={open}
+            onClose={() => setOpen(false)}
+            BackdropProps={{ invisible: true }}
+            PaperProps={{ sx: { height: "33%" } }}>
+            <div id="legend" style={{ padding: 10 }}>
+            <h3>Legend</h3>
+            {legendItems.map((item, index) => (
+              <div key={index} style={{ display: 'flex', alignItems: 'center', marginBottom: 5}}>
+                {item.icon && <img src={item.icon} alt={item.label} style={{ width: 20, height: 20, backgroundColor: item.color, marginRight: 5}} />}
+                {item.color && <div style={{width: 20, height: 20, backgroundColor: item.color, marginRight: 5}}></div>}
+                <span>{item.label}</span>
+              </div>
+           ))}
+          </div>
+        </Drawer>
+
+
           {startPos && !getDirections && <Chip label="Start" variant="outlined" style={{ marginRight: '5px', backgroundColor: 'pink' }} onDelete={handleStartDeleteMarker} />}
           {endPos && !getDirections && <Chip label="End" variant="outlined" style={{ marginRight: '5px', backgroundColor: 'lightgreen' }} onDelete={handleEndDeleteMarker} />}
           {/* report has an implicit outer div */}
@@ -434,6 +488,8 @@ function Map() {
           paths={ramp}
           options={rampPath}
         />}
+	
+	<Polygon paths={testPath} options={rampPath}/>
       </GoogleMap>
     </div>
   );
