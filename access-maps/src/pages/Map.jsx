@@ -141,6 +141,7 @@ function Map() {
   const options = useMemo(
     () => ({
       mapId: "a4620df1fed5e14e",
+      disableDefaultUI: true,
       clickableIcons: false,
     }),
     []
@@ -226,6 +227,12 @@ function Map() {
 
   const fetchDirections = () => {
     setGetDirections(true);
+  }
+
+  const resetDirections = () => {
+    setGetDirections(false);
+    setStartMarkerPosition(null);
+    setEndMarkerPosition(null);
   }
 
   const handleStartDeleteMarker = (event) => {
@@ -403,7 +410,7 @@ function Map() {
         onClick={handleMapClick(reportType)}
       >
 		    <div style={{display: "flex", justifyContent: "space-between", alignItems: "center"}}>
-          {startPos && endPos && <Button
+          {startPos && endPos && !getDirections && <Button
               onClick={() => fetchDirections()}
               style={{
                   border: '2px solid black',
@@ -414,6 +421,18 @@ function Map() {
               }}
           >
               GO!
+          </Button>}
+          {startPos && endPos && getDirections && <Button
+              onClick={() => resetDirections()}
+              style={{
+                  border: '2px solid black',
+                  padding: '10px 20px', // Increase padding to make the button bigger
+                  fontSize: '1.2rem', // Increase font size
+                  marginRight: '25px', // Pushes the GO button to the left
+                  backgroundColor: 'white',
+              }}
+          >
+              Reset
           </Button>}
           {startPos && !getDirections && <Chip label="Start" variant="outlined" style={{ marginRight: '5px', backgroundColor: 'pink' }} onDelete={handleStartDeleteMarker} />}
           {endPos && !getDirections && <Chip label="End" variant="outlined" style={{ marginRight: '5px', backgroundColor: 'lightgreen' }} onDelete={handleEndDeleteMarker} />}

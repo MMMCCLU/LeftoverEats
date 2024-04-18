@@ -31,6 +31,11 @@ function AccessibilityRouter({ polygons, startPos, endPos, getDirections }) {
     useEffect(() => {
         if (getDirections) {
             fetchDirections();
+        } 
+        else {
+            // Clear directions when getDirections is false
+            setDirections(null);
+            setPathNotFound(false);
         }
     }, [getDirections]);
 
