@@ -95,6 +95,7 @@ function Map() {
   const [center, setCenter] = useState({ lat: 34.5034, lng: -82.6501 });
   const [reportType, setReportType] = useState(null);
   const [open, setOpen] = useState(false);
+  const [polygons, setPolygons] = useState([]);
 
 
   const { data = [], error, isLoading } = useQuery({
@@ -123,6 +124,19 @@ function Map() {
       console.log("INVALID MAP LOCATION");
     }
   }, [mapName]);
+
+
+  useEffect(() => {
+    // Map data to polygons
+    if(data)
+    {
+      const coordinateArrays = data.map(item => (
+        item.coordinates.map(coord => ({ lat: coord.latitude, lng: coord.longitude }))
+      ));
+
+      setPolygons(coordinateArrays);
+    }
+  }, [data]);
 
   const options = useMemo(
     () => ({
@@ -435,7 +449,7 @@ function Map() {
         </Drawer>
         </div>
         <AccessibilityRouter
-          polygons={dbMarkers}
+          polygons={polygons}
           startPos={startPos}
           endPos={endPos}
           getDirections={getDirections}
