@@ -14,7 +14,7 @@ const { pool } = require('./db');
 
 
 
-const whitelist = ['http://localhost:3000'];
+const whitelist = ['https://access-maps-react-ig3e5tlrma-uc.a.run.app', 'http://localhost:3000'];
 const corsOptions = {
   origin: function (origin, callback) {
     if (whitelist.indexOf(origin) !== -1 || !origin) {

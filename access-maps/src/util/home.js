@@ -1,8 +1,8 @@
 export async function fetchHome() {
     // Get website home information from back-end
     const baseUrl = `${
-        'http://localhost:8080'
-    }/`;
+        process.env.REACT_APP_BACKEND_URL
+      }/`;
     const url = new URL(baseUrl);
 
     const response = await fetch(url, {

@@ -1,0 +1,10 @@
+node_modules
+package-lock.json
+*.log
+*.gz
+dist
+.env*
+logs
+
+.DS_Store
+/build

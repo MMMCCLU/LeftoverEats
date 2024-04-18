@@ -1,7 +1,0 @@
-*.log
-
-*.local
-
-.env*
-
-node_modules
