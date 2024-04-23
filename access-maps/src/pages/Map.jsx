@@ -23,7 +23,6 @@ const mapContainerStyle = {
 const clemson = { lat: 34.6775, lng: -82.8362};
 const greenville = { lat: 34.8526, lng: -82.3940};
 //const testPos = {lat: 34.677692944796476, lng: -82.83357787606501}
-//
 ;
 
 const PostFeatureDummyData = {
@@ -51,7 +50,7 @@ const reportIcon = "https://developers.google.com/maps/documentation/javascript/
 const REPORT_POLYGON_LIMIT = 10;
 const MIN_REPORT_LIMIT = 4;
 const reportingStairsCue = "Reporting: Stairs. Place markers outlining the hazard."
-const reportingRampsCue = "Reporting: Ramps. Place markers outlining the hazard."
+const reportingRampsCue = "Reporting: Ramps. Place markers outlining the area."
 const reportingElevCue = "Reporting: Elevators. Place the marker where the elevator is."
 
 
@@ -86,6 +85,12 @@ function Map() {
   const [stairs, setStairs] = useState([]);
   const [stairIndex, setStairIndex] = useState(0);
   const [stairsSet, setStairsSet] = useState(false);
+
+  const [rawReport, setRawReport] = useState([]);
+  const [reportIndex, setReportIndex] = useState(0);
+  const [reporting, setReporting] = useState(false);
+  const [renderStyle, setRenderStyle] = useState({});
+
   const [ramp, setRamp] = useState([]);
   const [rampIndex, setRampIndex] = useState(0);
   const [rampSet, setRampSet] = useState(false);
@@ -172,9 +177,34 @@ function Map() {
             latitude: event.latLng.lat(),
             longitude: event.latLng.lng(),
           });
-        }
+		}else{
+			console.log("Raw");
+			let clickedCoord = {latitude: event.latLng.lat(), longitude: event.latLng.lng()};
+			if(reportIndex < REPORT_POLYGON_LIMIT){
+				setRawReport(rawReport => {
+					const updatedReport = [...rawReport];
+					updatedReport.push(clickedCoord);
+					console.log(updatedReport);
+					return updatedReport;
+				});
+			}
+			let newIndex = reportIndex + 1;
+			setReportIndex(newIndex);
+			if( reportMode === "Stair"){
+				label.textContent = reportingStairsCue + ` Markers left (${REPORT_POLYGON_LIMIT - newIndex})`;
+			}else if(reportMode === "Ramp"){
+				label.textContent = reportingRampsCue + ` Markers left (${REPORT_POLYGON_LIMIT - newIndex})`;
+			}
+		}
+			/*
         else if(reportMode === "Stair" && stairIndex < REPORT_POLYGON_LIMIT)
         {
+		if(reportIndex >= MIN_REPORT_LIMIT){
+			
+		}else{
+			
+		}
+
             setStairs(stairs => {
               const updatedStairs = [...stairs];
               updatedStairs[stairIndex] = {latitude: event.latLng.lat(), longitude: event.latLng.lng()};
@@ -201,6 +231,7 @@ function Map() {
           setRampIndex(newIndex);
           label.textContent = reportingRampsCue + ` Markers left (${REPORT_POLYGON_LIMIT - newIndex})`;
         }
+	   */
       }
     };
 
@@ -217,14 +248,9 @@ function Map() {
   }
 
 	const handleReportTypeChange = (type) => {
-		if(reportType == null){
-			//setCenter(clemson);
-
-			//draw circle
-		}
 		// Update reportType state in the Map component
 		setReportType(type);
-		console.log("setting type");
+		setReporting(true);
 
 		var label = document.getElementById("report_label");
 		if(type === "Ramp"){
@@ -261,13 +287,28 @@ function Map() {
       // Reset all state variables
       setReportType(null);
       setElevatorPosition(null);
+      setRawReport([]);
       setRamp([]);
       setStairs([]);
       setRampIndex(0);
       setStairIndex(0);
+      setReportIndex(0);
+      setReporting(false);
       label.textContent = "";
       document.getElementById("hidden_div").style.visibility = "hidden";
     } else if (type === "Undo") {
+
+      if (reportType === "Elevator") {
+        setElevatorPosition(null);
+      }else if(reportIndex >= 1){
+		setRawReport(rawReport => {
+          const updatedReport = [...rawReport];
+          updatedReport.pop();
+          return updatedReport;
+        });
+        setReportIndex(prevIndex => prevIndex - 1);
+      }
+			/*
       if (reportType === "Ramp" && rampIndex >= 1) {
         setRamp(prevRamp => {
           const updatedRamp = [...prevRamp];
@@ -287,8 +328,9 @@ function Map() {
       } else if (reportType === "Elevator") {
         setElevatorPosition(null);
       }
+	 */
     } else if (type === "Confirm") {
-      var validReport = false;
+      let validReport = false;
       if (reportType === "Ramp" && rampIndex >= MIN_REPORT_LIMIT) {
         const rampFeatureToBackend = {
           featureType: "ramp",
@@ -326,19 +368,21 @@ function Map() {
       }
 
       if (validReport) {
+				//save current position
+				//force refresh
         setReportType(null);
+        setReporting(false);
         document.getElementById("hidden_div").style.visibility = "hidden";
         label.textContent = "Report Sent!";
         setTimeout(() => label.textContent = "", 3000);
       } else {
+		let currentContent = label.textContent;
         label.textContent = "Invalid report!";
+        setTimeout(() => label.textContent = currentContent, 2500);
       }
     }
   };
   
-
-  // console.log("RAMP DEBUG: ", ramp);
-
   const dbMarkers = data.map(item =>{
     
     if(item.featureType === "elevator"){
@@ -433,6 +477,11 @@ function Map() {
         {rampSet && <Polygon
           paths={ramp}
           options={rampPath}
+        />}
+
+        {reporting && <Polygon
+          paths={orderCoordsForPolygon(rawReport)}
+          options={renderStyle}
         />}
       </GoogleMap>
     </div>
