@@ -31,6 +31,11 @@ function AccessibilityRouter({ polygons, startPos, endPos, getDirections }) {
     useEffect(() => {
         if (getDirections) {
             fetchDirections();
+        } 
+        else {
+            // Clear directions when getDirections is false
+            setDirections(null);
+            setPathNotFound(false);
         }
     }, [getDirections]);
 
@@ -70,7 +75,7 @@ function AccessibilityRouter({ polygons, startPos, endPos, getDirections }) {
 
     const checkForRouteCollisions = (route) => {
         const routePath = route;
-        const stairsPolygons = polygons.polygons;
+        const stairsPolygons = polygons;
 
         for (let i = 0; i < stairsPolygons.length; i++) {
             const stairsPolygon = new window.google.maps.Polygon({

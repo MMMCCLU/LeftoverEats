@@ -1,7 +1,7 @@
 export async function fetchMapFeatures() {
-      const baseUrl = `${
-        'http://localhost:8080/features'
-    }/`;
+  const baseUrl = `${
+    process.env.REACT_APP_BACKEND_URL
+  }/features`;
     const url = new URL(baseUrl);
 
     const response = await fetch(url, {
@@ -40,9 +40,9 @@ s        "latitude": 34.6772208204604,
   }
   */
 export async function saveMapFeature(featureData) {
-      const baseUrl = `${
-        'http://localhost:8080/features'
-    }/`;
+    const baseUrl = `${
+      process.env.REACT_APP_BACKEND_URL
+    }/features`;
     const url = new URL(baseUrl);
       
     const response = await fetch(url, {
