@@ -20,11 +20,8 @@ const mapContainerStyle = {
   width: '100vw',
   height: '80vh',
 };
-//const clemson = { lat: 34.6834, lng: -82.8374 };
 const clemson = { lat: 34.6775, lng: -82.8362};
 const greenville = { lat: 34.8526, lng: -82.3940};
-//const testPos = {lat: 34.677692944796476, lng: -82.83357787606501}
-;
 
 const testPath = [
 	{lat: 34.677519851852935, lng: -82.83441633108306},
@@ -90,7 +87,7 @@ const rampPath = {
 const legendItems = [
   { icon: "https://upload.wikimedia.org/wikipedia/commons/7/73/Aiga_elevator.png", label: "Elevator"},
   { color: "#FFFF00", label: "Stairs"},
-  { color: "#03F5D4", label: "Ramp"},
+  { color: "#58d45b", label: "Ramp"},
 ];
 
 
