@@ -93,18 +93,12 @@ function Map() {
   const [endPos, setEndMarkerPosition] = useState();
   const [getDirections, setGetDirections] = useState(false);
   const [elevatorPos, setElevatorPosition] = useState();
-  //const [stairs, setStairs] = useState([]);
-  //const [stairIndex, setStairIndex] = useState(0);
-  //const [stairsSet, setStairsSet] = useState(false);
 
   const [rawReport, setRawReport] = useState([]);
   const [reportIndex, setReportIndex] = useState(0);
   const [reporting, setReporting] = useState(false);
   const [renderStyle, setRenderStyle] = useState({});
 
-  //const [ramp, setRamp] = useState([]);
-  //const [rampIndex, setRampIndex] = useState(0);
-  //const [rampSet, setRampSet] = useState(false);
   const [center, setCenter] = useState({ lat: 34.5034, lng: -82.6501 });
   const [reportType, setReportType] = useState(null);
 
@@ -207,42 +201,6 @@ function Map() {
 				label.textContent = reportingRampsCue + ` Markers left (${REPORT_POLYGON_LIMIT - newIndex})`;
 			}
 		}
-			/*
-        else if(reportMode === "Stair" && stairIndex < REPORT_POLYGON_LIMIT)
-        {
-		if(reportIndex >= MIN_REPORT_LIMIT){
-			
-		}else{
-			
-		}
-
-            setStairs(stairs => {
-              const updatedStairs = [...stairs];
-              updatedStairs[stairIndex] = {latitude: event.latLng.lat(), longitude: event.latLng.lng()};
-              return updatedStairs;
-            });
-  
-          // Increment stair index
-          //for what ever reason the index only updates after method termination
-          //so a temp variable is used
-          let newIndex = stairIndex + 1;
-          setStairIndex(newIndex);
-          label.textContent = reportingStairsCue + ` Markers left (${REPORT_POLYGON_LIMIT - newIndex})`;
-        }
-        else if(reportMode === "Ramp" && rampIndex < REPORT_POLYGON_LIMIT)
-        {
-            const updatedRamp = [...ramp];
-            updatedRamp[rampIndex] = {latitude: event.latLng.lat(), longitude: event.latLng.lng()};
-            setRamp(updatedRamp);
-
-          // Increment ramp index
-          //for what ever reason the index only updates after method termination
-          //so a temp variable is used
-          let newIndex = rampIndex + 1;
-          setRampIndex(newIndex);
-          label.textContent = reportingRampsCue + ` Markers left (${REPORT_POLYGON_LIMIT - newIndex})`;
-        }
-	   */
       }
     };
 
@@ -266,40 +224,28 @@ function Map() {
 		var label = document.getElementById("report_label");
 		if(type === "Ramp"){
 			label.textContent = reportingRampsCue + ` Markers left (${REPORT_POLYGON_LIMIT})`;
-
-			//remove opposing markers if any
-			//for (let i = 0; i < stairIndex; ++i) stairs[i] = null;
-			//setStairIndex(0);
+			//reset other report progress
+			setElevatorPosition(null);
 			setRawReport([]);
 			setReportIndex(0);
-			setElevatorPosition(null);
 			setRenderStyle(rampPath);
 		}
 		else if(type === "Stair"){
 			label.textContent = reportingStairsCue + ` Markers left (${REPORT_POLYGON_LIMIT})`;
-
-			//remove opposing markers if any
-			//for (let i = 0; i < rampIndex; ++i) ramp[i] = null;
-			//setRampIndex(0);
+			//reset other report progress
+			setElevatorPosition(null);
 			setRawReport([]);
 			setReportIndex(0);
-			setElevatorPosition(null);
 			setRenderStyle(stairHazard);
 		}
 		else if(type === "Elevator"){
 			label.textContent = reportingElevCue;
-
-			//remove opposing markers if any
-			//for (let i = 0; i < stairIndex; ++i) stairs[i] = null;
-			//setStairIndex(0);
-			//for (let i = 0; i < rampIndex; ++i) ramp[i] = null;
-			//setRampIndex(0);
-			setRenderStyle({});
+			//reset other report progress
 			setRawReport([]);
 			setReportIndex(0);
+			setRenderStyle({});
 		}
 	};
-
 
 	const handleReportTypeAction = (type) => {
     const label = document.getElementById("report_label");
@@ -312,12 +258,6 @@ function Map() {
       setReporting(false);
       setRenderStyle({});
 
-	 /*
-      setStairs([]);
-      setRamp([]);
-      setRampIndex(0);
-      setStairIndex(0);
-	 */
       label.textContent = "";
       document.getElementById("hidden_div").style.visibility = "hidden";
     } else if (type === "Undo") {
@@ -326,6 +266,7 @@ function Map() {
         setElevatorPosition(null);
       }else{
 		if(reportIndex >= 1){
+			//pop off the most recent coordinate clicked
 			setRawReport(rawReport => {
 				const updatedReport = [...rawReport];
 				updatedReport.pop();
@@ -340,27 +281,6 @@ function Map() {
 			label.textContent = reportingStairsCue + ` Markers left (${REPORT_POLYGON_LIMIT - (reportIndex - 1)})`;
 		}
       }
-			/*
-      if (reportType === "Ramp" && rampIndex >= 1) {
-        setRamp(prevRamp => {
-          const updatedRamp = [...prevRamp];
-          updatedRamp[rampIndex - 1] = null;
-          return updatedRamp;
-        });
-        setRampIndex(prevIndex => prevIndex - 1);
-        label.textContent = reportingRampsCue + ` Markers left (${REPORT_POLYGON_LIMIT - (rampIndex - 1)})`;
-      } else if (reportType === "Stair" && stairIndex >= 1) {
-        setStairs(prevStairs => {
-          const updatedStairs = [...prevStairs];
-          updatedStairs[stairIndex - 1] = null;
-          return updatedStairs;
-        });
-        setStairIndex(prevIndex => prevIndex - 1);
-        label.textContent = reportingStairsCue + ` Markers left (${REPORT_POLYGON_LIMIT - (stairIndex - 1)})`;
-      } else if (reportType === "Elevator") {
-        setElevatorPosition(null);
-      }
-	 */
     } else if (type === "Confirm") {
       let validReport = false;
       if (reportType === "Ramp" && reportIndex >= MIN_REPORT_LIMIT) {
@@ -369,16 +289,8 @@ function Map() {
           coordinates: orderCoordsForDatabase(rawReport)
         }
 
-        //INSERT ramp to database
+        //INSERT ramp coords to database
         mutate(rampFeatureToBackend);
-        setRawReport([]);
-        setReportIndex(0);
-
-				/*
-        setRampSet(true);
-        setRamp([]);
-        setRampIndex(0);
-	   */
         validReport = true;
       } else if (reportType === "Stair" && reportIndex >= MIN_REPORT_LIMIT) {
         const stairsFeatureToBackend = {
@@ -386,16 +298,8 @@ function Map() {
           coordinates: orderCoordsForDatabase(rawReport)
         }
 
-        //INSERT stair coord to database
+        //INSERT stair coords to database
         mutate(stairsFeatureToBackend)
-        setRawReport([]);
-        setReportIndex(0);
-
-				/*
-        setStairsSet(true);
-        setStairs([]);
-        setStairIndex(0);
-	   */
         validReport = true;
       } else if (reportType === "Elevator" && elevatorPos != null) {
         const elevatorFeatureToBackend = {
@@ -410,16 +314,20 @@ function Map() {
       }
 
       if (validReport) {
-				//save current position
-				//force refresh
+		//TODO set it so it can see new report
+		//can force fetch of database
+		//can force reload the page
+		//can remain local until next reload (least prefered)
         setReportType(null);
         setReporting(false);
+        setReportIndex(0);
         setRenderStyle({});
+        setRawReport([]);
         document.getElementById("hidden_div").style.visibility = "hidden";
         label.textContent = "Report Sent!";
         setTimeout(() => label.textContent = "", 3000);
       } else {
-		let currentContent = label.textContent;
+        let currentContent = label.textContent;
         label.textContent = "Invalid report!";
         setTimeout(() => label.textContent = currentContent, 2500);
       }
