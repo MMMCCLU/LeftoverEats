@@ -26,16 +26,6 @@ const greenville = { lat: 34.8526, lng: -82.3940};
 //const testPos = {lat: 34.677692944796476, lng: -82.83357787606501}
 ;
 
-const testPath = [
-	{lat: 34.677519851852935, lng: -82.83441633108306},
-	{lat: 34.678402151620936, lng: -82.83564478275818},
-	{lat: 34.67854773017918, lng: -82.83663183563252},
-	{lat: 34.67717134085477, lng: -82.83714145532306},
-	{lat: 34.67660666169381, lng: -82.83639580124952},
-	{lat: 34.677519851852935, lng: -82.83441633108306},
-];
-
-
 const PostFeatureDummyData = {
   featureType: "ramp",
   coordinates: [
@@ -57,13 +47,13 @@ const PostFeatureDummyData = {
     }
   ]
 };
+
 const reportIcon = "https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png";
 const REPORT_POLYGON_LIMIT = 10;
 const MIN_REPORT_LIMIT = 4;
 const reportingStairsCue = "Reporting: Stairs. Place markers outlining the hazard."
 const reportingRampsCue = "Reporting: Ramps. Place markers outlining the area."
 const reportingElevCue = "Reporting: Elevators. Place the marker where the elevator is."
-
 
 const stairHazard = {
 	strokeOpacity:0.9,
@@ -98,6 +88,7 @@ function Map() {
   const [reportIndex, setReportIndex] = useState(0);
   const [reporting, setReporting] = useState(false);
   const [renderStyle, setRenderStyle] = useState({});
+  const [needsRefresh, setRefreshNeed] = useState(true);
 
   const [center, setCenter] = useState({ lat: 34.5034, lng: -82.6501 });
   const [reportType, setReportType] = useState(null);
@@ -128,6 +119,7 @@ function Map() {
       console.log("INVALID MAP LOCATION");
     }
   }, [mapName]);
+
 
   const options = useMemo(
     () => ({
@@ -291,6 +283,7 @@ function Map() {
 
         //INSERT ramp coords to database
         mutate(rampFeatureToBackend);
+        dbMarkers.push(rampFeatureToBackend.coordinates);
         validReport = true;
       } else if (reportType === "Stair" && reportIndex >= MIN_REPORT_LIMIT) {
         const stairsFeatureToBackend = {
@@ -300,6 +293,7 @@ function Map() {
 
         //INSERT stair coords to database
         mutate(stairsFeatureToBackend)
+        dbMarkers.push(stairsFeatureToBackend.coordinates);
         validReport = true;
       } else if (reportType === "Elevator" && elevatorPos != null) {
         const elevatorFeatureToBackend = {
@@ -309,6 +303,7 @@ function Map() {
 
         //INSERT Elevator coord to database
         mutate(elevatorFeatureToBackend);
+        dbMarkers.push(elevatorFeatureToBackend.coordinates);
         setElevatorPosition();
         validReport = true;
       }
@@ -323,6 +318,7 @@ function Map() {
         setReportIndex(0);
         setRenderStyle({});
         setRawReport([]);
+        setRefreshNeed(true);
         document.getElementById("hidden_div").style.visibility = "hidden";
         label.textContent = "Report Sent!";
         setTimeout(() => label.textContent = "", 3000);
@@ -334,7 +330,9 @@ function Map() {
     }
   };
   
-  const dbMarkers = data.map(item =>{
+function initDBMarkers (data){
+
+data.map(item =>{
     
     if(item.featureType === "elevator"){
       
@@ -368,6 +366,7 @@ function Map() {
       /> 
     }
   })
+	}
 
   return (
     <div>
@@ -399,12 +398,14 @@ function Map() {
           onReportActionClicked={handleReportTypeAction}
         />
         </div>
+
         <AccessibilityRouter
           polygons={dbMarkers}
           startPos={startPos}
           endPos={endPos}
           getDirections={getDirections}
         >
+
         </AccessibilityRouter>
         {!isLoading && dbMarkers}
         {elevatorPos && <Marker
