@@ -149,6 +149,7 @@ function Map() {
       ));
 
       setPolygons(coordinateArrays);
+			//set db markers
     }
   }, [data]);
 
@@ -199,8 +200,7 @@ function Map() {
       else
       {
       const label = document.getElementById("report_label");
-        if(reportMode === "Elevator")
-        {
+        if(reportMode === "Elevator"){
           setElevatorPosition({
             latitude: event.latLng.lat(),
             longitude: event.latLng.lng(),
@@ -301,13 +301,15 @@ function Map() {
 				updatedReport.pop();
 				return updatedReport;
 			});
-			setReportIndex(prevIndex => prevIndex - 1);
-		}
+			let newIndex = reportIndex - 1;
+			setReportIndex(newIndex);
 
-		if(reportType === "Ramp"){
-			label.textContent = reportingRampsCue + ` Markers left (${REPORT_POLYGON_LIMIT - (reportIndex - 1)})`;
-		}else if(reportType === "Stair"){
-			label.textContent = reportingStairsCue + ` Markers left (${REPORT_POLYGON_LIMIT - (reportIndex - 1)})`;
+			if(reportType === "Ramp"){
+				label.textContent = reportingRampsCue + ` Markers left (${REPORT_POLYGON_LIMIT - newIndex})`;
+			}else if(reportType === "Stair"){
+				label.textContent = reportingStairsCue + ` Markers left (${REPORT_POLYGON_LIMIT - newIndex})`;
+			}
+
 		}
       }
     } else if (type === "Confirm") {
@@ -439,6 +441,11 @@ function Map() {
           onReportTypeChange={handleReportTypeChange}
           onReportActionClicked={handleReportTypeAction}
         />
+
+        {/*Set a marker for the first point placed in reporting*/}
+        {reporting && reportIndex == 1 &&
+		<Marker key={0} position={rawReport[0]} icon={{url: reportIcon, scaledSize: new window.google.maps.Size(30, 30)}} />
+        }
         <Button onClick={() => setOpen(true)}
                   style={{
                     border: '2px solid black',
