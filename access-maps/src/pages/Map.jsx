@@ -11,7 +11,8 @@ import stairDropperIcon from "../images/StairsPlaceMarker.svg"
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { queryClient } from '../util/http';
 import { fetchMapFeatures, saveMapFeature } from '../util/features';
-import { orderCoordsForPolygon } from '../util/orderCoords.js'
+import { orderCoordsForDatabase } from '../util/orderCoords.js'
+import { orderCoordsForGoogle } from '../util/orderCoords.js'
 
 const GOOGLE_MAPS_API_KEY = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
 const libraries = ['places'];
@@ -24,6 +25,16 @@ const clemson = { lat: 34.6775, lng: -82.8362};
 const greenville = { lat: 34.8526, lng: -82.3940};
 //const testPos = {lat: 34.677692944796476, lng: -82.83357787606501}
 ;
+
+const testPath = [
+	{lat: 34.677519851852935, lng: -82.83441633108306},
+	{lat: 34.678402151620936, lng: -82.83564478275818},
+	{lat: 34.67854773017918, lng: -82.83663183563252},
+	{lat: 34.67717134085477, lng: -82.83714145532306},
+	{lat: 34.67660666169381, lng: -82.83639580124952},
+	{lat: 34.677519851852935, lng: -82.83441633108306},
+];
+
 
 const PostFeatureDummyData = {
   featureType: "ramp",
@@ -82,18 +93,18 @@ function Map() {
   const [endPos, setEndMarkerPosition] = useState();
   const [getDirections, setGetDirections] = useState(false);
   const [elevatorPos, setElevatorPosition] = useState();
-  const [stairs, setStairs] = useState([]);
-  const [stairIndex, setStairIndex] = useState(0);
-  const [stairsSet, setStairsSet] = useState(false);
+  //const [stairs, setStairs] = useState([]);
+  //const [stairIndex, setStairIndex] = useState(0);
+  //const [stairsSet, setStairsSet] = useState(false);
 
   const [rawReport, setRawReport] = useState([]);
   const [reportIndex, setReportIndex] = useState(0);
   const [reporting, setReporting] = useState(false);
   const [renderStyle, setRenderStyle] = useState({});
 
-  const [ramp, setRamp] = useState([]);
-  const [rampIndex, setRampIndex] = useState(0);
-  const [rampSet, setRampSet] = useState(false);
+  //const [ramp, setRamp] = useState([]);
+  //const [rampIndex, setRampIndex] = useState(0);
+  //const [rampSet, setRampSet] = useState(false);
   const [center, setCenter] = useState({ lat: 34.5034, lng: -82.6501 });
   const [reportType, setReportType] = useState(null);
 
@@ -179,7 +190,7 @@ function Map() {
           });
 		}else{
 			console.log("Raw");
-			let clickedCoord = {latitude: event.latLng.lat(), longitude: event.latLng.lng()};
+			let clickedCoord = {lat: event.latLng.lat(), lng: event.latLng.lng()};
 			if(reportIndex < REPORT_POLYGON_LIMIT){
 				setRawReport(rawReport => {
 					const updatedReport = [...rawReport];
@@ -257,26 +268,35 @@ function Map() {
 			label.textContent = reportingRampsCue + ` Markers left (${REPORT_POLYGON_LIMIT})`;
 
 			//remove opposing markers if any
-			for (let i = 0; i < stairIndex; ++i) stairs[i] = null;
-			setStairIndex(0);
+			//for (let i = 0; i < stairIndex; ++i) stairs[i] = null;
+			//setStairIndex(0);
+			setRawReport([]);
+			setReportIndex(0);
 			setElevatorPosition(null);
+			setRenderStyle(rampPath);
 		}
 		else if(type === "Stair"){
 			label.textContent = reportingStairsCue + ` Markers left (${REPORT_POLYGON_LIMIT})`;
 
 			//remove opposing markers if any
-			for (let i = 0; i < rampIndex; ++i) ramp[i] = null;
-			setRampIndex(0);
+			//for (let i = 0; i < rampIndex; ++i) ramp[i] = null;
+			//setRampIndex(0);
+			setRawReport([]);
+			setReportIndex(0);
 			setElevatorPosition(null);
+			setRenderStyle(stairHazard);
 		}
 		else if(type === "Elevator"){
 			label.textContent = reportingElevCue;
 
 			//remove opposing markers if any
-			for (let i = 0; i < stairIndex; ++i) stairs[i] = null;
-			setStairIndex(0);
-			for (let i = 0; i < rampIndex; ++i) ramp[i] = null;
-			setRampIndex(0);
+			//for (let i = 0; i < stairIndex; ++i) stairs[i] = null;
+			//setStairIndex(0);
+			//for (let i = 0; i < rampIndex; ++i) ramp[i] = null;
+			//setRampIndex(0);
+			setRenderStyle({});
+			setRawReport([]);
+			setReportIndex(0);
 		}
 	};
 
@@ -288,25 +308,37 @@ function Map() {
       setReportType(null);
       setElevatorPosition(null);
       setRawReport([]);
-      setRamp([]);
-      setStairs([]);
-      setRampIndex(0);
-      setStairIndex(0);
       setReportIndex(0);
       setReporting(false);
+      setRenderStyle({});
+
+	 /*
+      setStairs([]);
+      setRamp([]);
+      setRampIndex(0);
+      setStairIndex(0);
+	 */
       label.textContent = "";
       document.getElementById("hidden_div").style.visibility = "hidden";
     } else if (type === "Undo") {
 
       if (reportType === "Elevator") {
         setElevatorPosition(null);
-      }else if(reportIndex >= 1){
-		setRawReport(rawReport => {
-          const updatedReport = [...rawReport];
-          updatedReport.pop();
-          return updatedReport;
-        });
-        setReportIndex(prevIndex => prevIndex - 1);
+      }else{
+		if(reportIndex >= 1){
+			setRawReport(rawReport => {
+				const updatedReport = [...rawReport];
+				updatedReport.pop();
+				return updatedReport;
+			});
+			setReportIndex(prevIndex => prevIndex - 1);
+		}
+
+		if(reportType === "Ramp"){
+			label.textContent = reportingRampsCue + ` Markers left (${REPORT_POLYGON_LIMIT - (reportIndex - 1)})`;
+		}else if(reportType === "Stair"){
+			label.textContent = reportingStairsCue + ` Markers left (${REPORT_POLYGON_LIMIT - (reportIndex - 1)})`;
+		}
       }
 			/*
       if (reportType === "Ramp" && rampIndex >= 1) {
@@ -331,29 +363,39 @@ function Map() {
 	 */
     } else if (type === "Confirm") {
       let validReport = false;
-      if (reportType === "Ramp" && rampIndex >= MIN_REPORT_LIMIT) {
+      if (reportType === "Ramp" && reportIndex >= MIN_REPORT_LIMIT) {
         const rampFeatureToBackend = {
           featureType: "ramp",
-          coordinates: orderCoordsForPolygon(ramp)
+          coordinates: orderCoordsForDatabase(rawReport)
         }
 
         //INSERT ramp to database
         mutate(rampFeatureToBackend);
+        setRawReport([]);
+        setReportIndex(0);
+
+				/*
         setRampSet(true);
         setRamp([]);
         setRampIndex(0);
+	   */
         validReport = true;
-      } else if (reportType === "Stair" && stairIndex >= MIN_REPORT_LIMIT) {
+      } else if (reportType === "Stair" && reportIndex >= MIN_REPORT_LIMIT) {
         const stairsFeatureToBackend = {
           featureType: "stairs",
-          coordinates: orderCoordsForPolygon(stairs)
+          coordinates: orderCoordsForDatabase(rawReport)
         }
 
         //INSERT stair coord to database
         mutate(stairsFeatureToBackend)
+        setRawReport([]);
+        setReportIndex(0);
+
+				/*
         setStairsSet(true);
         setStairs([]);
         setStairIndex(0);
+	   */
         validReport = true;
       } else if (reportType === "Elevator" && elevatorPos != null) {
         const elevatorFeatureToBackend = {
@@ -372,6 +414,7 @@ function Map() {
 				//force refresh
         setReportType(null);
         setReporting(false);
+        setRenderStyle({});
         document.getElementById("hidden_div").style.visibility = "hidden";
         label.textContent = "Report Sent!";
         setTimeout(() => label.textContent = "", 3000);
@@ -426,7 +469,6 @@ function Map() {
         center={center}
         options={options}
         onClick={handleMapClick(reportType)}
-		id = {"DaMap"}
       >
 		    <div style={{display: "flex", justifyContent: "space-between", alignItems: "center"}}>
           {startPos && endPos && <Button
@@ -460,6 +502,19 @@ function Map() {
         {elevatorPos && <Marker
         position={elevatorPos}
           icon={{url: elevatorDropperIcon, scaledSize: new window.google.maps.Size(50, 80)}}></Marker>}
+
+        {reporting && reportType !== "Elevator" && <Polygon
+          paths={orderCoordsForGoogle(rawReport)}
+          options={renderStyle}
+        />}
+      </GoogleMap>
+    </div>
+  );
+};
+
+
+export default Map;
+/*
         {stairs.map((position, index) => (
                 position && (
                     <Marker key={index} position={position} icon={{url: stairDropperIcon, scaledSize: new window.google.maps.Size(50, 80)}} />
@@ -478,14 +533,4 @@ function Map() {
           paths={ramp}
           options={rampPath}
         />}
-
-        {reporting && <Polygon
-          paths={orderCoordsForPolygon(rawReport)}
-          options={renderStyle}
-        />}
-      </GoogleMap>
-    </div>
-  );
-};
-
-export default Map;
+*/
