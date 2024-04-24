@@ -1,0 +1,17 @@
+npm run docker-build
+Make sure you are logged in to docker -> (docker login -u sarasu2) -> (PAT)
+
+docker tag sarasu2/access-maps-express:prod gcr.io/accessibility-maps-416416/access-maps-express:prod
+
+
+docker push gcr.io/accessibility-maps-416416/access-maps-express:prod
+
+
+
+docker tag sarasu2/access-maps-react:prod gcr.io/accessibility-maps-416416/access-maps-react:prod
+
+
+docker push gcr.io/accessibility-maps-416416/access-maps-react:prod
+
+
+Use Google Cloud Run and create service using the containers from container registry
