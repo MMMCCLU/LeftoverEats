@@ -23,16 +23,6 @@ const mapContainerStyle = {
 const clemson = { lat: 34.6775, lng: -82.8362};
 const greenville = { lat: 34.8526, lng: -82.3940};
 
-const testPath = [
-	{lat: 34.677519851852935, lng: -82.83441633108306},
-	{lat: 34.678402151620936, lng: -82.83564478275818},
-	{lat: 34.67854773017918, lng: -82.83663183563252},
-	{lat: 34.67717134085477, lng: -82.83714145532306},
-	{lat: 34.67660666169381, lng: -82.83639580124952},
-	{lat: 34.677519851852935, lng: -82.83441633108306},
-];
-
-
 const PostFeatureDummyData = {
   featureType: "ramp",
   coordinates: [
@@ -87,7 +77,7 @@ const rampPath = {
 const legendItems = [
   { icon: "https://upload.wikimedia.org/wikipedia/commons/7/73/Aiga_elevator.png", label: "Elevator"},
   { color: "#FFFF00", label: "Stairs"},
-  { color: "#58d45b", label: "Ramp"},
+  { color: "#58D45B", label: "Ramp"},
 ];
 
 
@@ -146,7 +136,6 @@ function Map() {
       ));
 
       setPolygons(coordinateArrays);
-			//set db markers
     }
   }, [data]);
 
@@ -319,6 +308,7 @@ function Map() {
 
         //INSERT ramp coords to database
         mutate(rampFeatureToBackend);
+        data.push(rampFeatureToBackend.coordinates);
         validReport = true;
       } else if (reportType === "Stair" && reportIndex >= MIN_REPORT_LIMIT) {
         const stairsFeatureToBackend = {
@@ -328,6 +318,7 @@ function Map() {
 
         //INSERT stair coords to database
         mutate(stairsFeatureToBackend)
+        data.push(stairsFeatureToBackend.coordinates);
         validReport = true;
       } else if (reportType === "Elevator" && elevatorPos != null) {
         const elevatorFeatureToBackend = {
@@ -337,6 +328,7 @@ function Map() {
 
         //INSERT Elevator coord to database
         mutate(elevatorFeatureToBackend);
+        data.push(elevatorFeatureToBackend.coordinates);
         setElevatorPosition();
         validReport = true;
       }
