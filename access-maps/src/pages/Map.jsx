@@ -405,7 +405,7 @@ function Map() {
         options={options}
         onClick={handleMapClick(reportType)}
       >
-		    <div style={{display: "flex", justifyContent: "space-between", alignItems: "center"}}>
+		    <div style={{display: "flex", justifyContent: "left", alignItems: "center"}}>
           {startPos && endPos && !getDirections && <Button
               onClick={() => fetchDirections()}
               style={{
@@ -433,10 +433,6 @@ function Map() {
           {startPos && !getDirections && <Chip label="Start" variant="outlined" style={{ marginRight: '5px', backgroundColor: 'pink' }} onDelete={handleStartDeleteMarker} />}
           {endPos && !getDirections && <Chip label="End" variant="outlined" style={{ marginRight: '5px', backgroundColor: 'lightgreen' }} onDelete={handleEndDeleteMarker} />}
           {/* report has an implicit outer div */}
-        <Report
-          onReportTypeChange={handleReportTypeChange}
-          onReportActionClicked={handleReportTypeAction}
-        />
 
         {/*Set a marker for the first point placed in reporting*/}
         {reporting && reportIndex == 1 &&
@@ -447,32 +443,10 @@ function Map() {
         {reporting && reportType === "Elevator" && elevatorPos != null &&
 		<Marker key={1} position={{lat: elevatorPos.latitude, lng: elevatorPos.longitude}} icon={{url: elevatorDropperIcon, scaledSize: new window.google.maps.Size(100, 100)}} />
         }
-
-        <Button onClick={() => setOpen(true)}
-                  style={{
-                    border: '2px solid black',
-                    padding: '10px 20px', // Increase padding to make the button bigger
-                    fontSize: '1.2rem', // Increase font size
-                    backgroundColor: 'white',
-        }}
-        >LEGEND</Button>
-          <Drawer 
-            anchor="right"
-            open={open}
-            onClose={() => setOpen(false)} 
-            BackdropProps={{ invisible: true }}
-            PaperProps={{ sx: { height: "33%" } }}>
-            <div id="legend" style={{ padding: 10 }}>
-            <h3>Legend</h3>
-            {legendItems.map((item, index) => (
-              <div key={index} style={{ display: 'flex', alignItems: 'center', marginBottom: 5}}>
-                {item.icon && <img src={item.icon} alt={item.label} style={{ width: 20, height: 20, backgroundColor: item.color, marginRight: 5}} />}
-                {item.color && <div style={{width: 20, height: 20, backgroundColor: item.color, marginRight: 5}}></div>}
-                <span>{item.label}</span>
-              </div>
-           ))}
-          </div>
-        </Drawer>
+          <Report
+            onReportTypeChange={handleReportTypeChange}
+            onReportActionClicked={handleReportTypeAction}
+          />
         </div>
         <AccessibilityRouter
           polygons={polygons}

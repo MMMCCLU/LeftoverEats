@@ -85,7 +85,7 @@ const Report = (props) => {
 	const legendItems = [
 		{ icon: "https://upload.wikimedia.org/wikipedia/commons/7/73/Aiga_elevator.png", label: "Elevator"},
 		{ color: "#FFFF00", label: "Stairs"},
-		{ color: "#03F5D4", label: "Ramp"},
+		{ color: "#58D45B", label: "Ramp"},
 	  ];
 
 	const LegendList = legendItems.map((item, index) => (
@@ -117,6 +117,9 @@ const Report = (props) => {
 				padding: '10px 20px', // Increase padding to make the button bigger
 				fontSize: '1.2rem', // Increase font size
 				backgroundColor: 'white',
+                position: 'absolute',
+                left: '93.5%',
+                top: '0px'
 			}}
 			>Menu</Button>
             <Menu
