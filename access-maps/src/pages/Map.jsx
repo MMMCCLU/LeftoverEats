@@ -97,6 +97,7 @@ function Map() {
   const [reportType, setReportType] = useState(null);
   const [open, setOpen] = useState(false);
   const [polygons, setPolygons] = useState([]);
+  const [stairsPolygons, setStairsPolygons] = useState([]);
 
 
   const { data = [], error, isLoading } = useQuery({
@@ -131,10 +132,17 @@ function Map() {
     // Map data to polygons
     if(data)
     {
+      // Sets all polygons to render on map
       const coordinateArrays = data.map(item => (
         item.coordinates.map(coord => ({ lat: coord.latitude, lng: coord.longitude }))
       ));
 
+      // Records all stair polygons for routing purposes
+      const stairsCoordinatesArrays = data.filter(item => item.featureType === 'stairs').map(item => 
+        item.coordinates.map(coord => ({ lat: coord.latitude, lng: coord.longitude })
+      ));
+
+      setStairsPolygons(stairsCoordinatesArrays);
       setPolygons(coordinateArrays);
     }
   }, [data]);
@@ -449,7 +457,7 @@ function Map() {
           />
         </div>
         <AccessibilityRouter
-          polygons={polygons}
+          polygons={stairsPolygons}
           startPos={startPos}
           endPos={endPos}
           getDirections={getDirections}
